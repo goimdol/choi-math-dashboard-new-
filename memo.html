@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>최선생수학학원 — 메모장</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Quill 리치 텍스트 에디터 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
+<style>
+:root{--accent:#1D9E75;--accent-light:#E1F5EE;--accent-dark:#0F6E56;--bg:#F7F7F5;--card:#FFF;--border:rgba(0,0,0,0.08);--text:#1A1A1A;--text2:#666;--text3:#999;--shadow:0 1px 3px rgba(0,0,0,0.06);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0F6E56,#1D9E75,#5DCAA5);}
+.login-card{background:#fff;border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
+.login-logo{text-align:center;margin-bottom:1.5rem;}
+.login-logo h1{font-size:18px;font-weight:700;}
+.login-logo p{font-size:13px;color:var(--text2);margin-top:4px;}
+.lbl{font-size:13px;color:var(--text2);margin-bottom:6px;display:block;}
+.login-select,.login-pin{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);margin-bottom:1rem;}
+.login-select{font-size:15px;cursor:pointer;}
+.login-select:focus,.login-pin:focus{outline:none;border-color:var(--accent);}
+.login-pin{font-size:22px;letter-spacing:10px;font-family:monospace;text-align:center;margin-bottom:1.5rem;}
+.login-btn{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+.login-btn:hover{background:var(--accent-dark);}
+.login-error{color:#A32D2D;font-size:12px;text-align:center;margin-top:8px;display:none;}
+
+/* HEADER */
+.app-header{background:#fff;border-bottom:1px solid var(--border);padding:0 1rem;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.header-logo{font-size:15px;font-weight:700;color:var(--accent);flex:1;}
+.header-logo span{font-size:12px;font-weight:400;color:var(--text2);margin-left:6px;}
+.header-user{display:flex;align-items:center;gap:8px;}
+.header-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+.logout-btn{background:none;border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;}
+
+/* MAIN */
+.main{max-width:780px;margin:0 auto;padding:1rem;}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
+.tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;transition:all .15s;}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500;}
+.fab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 12px rgba(29,158,117,.4);display:flex;align-items:center;justify-content:center;z-index:200;}
+.fab:hover{background:var(--accent-dark);}
+
+/* SHEET */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:flex-end;justify-content:center;}
+.sheet-overlay.open{display:flex;}
+.sheet{background:#fff;border-radius:20px 20px 0 0;padding:1.5rem 1rem 2rem;width:100%;max-width:780px;max-height:92vh;overflow-y:auto;}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 1.25rem;}
+.sheet-title{font-size:16px;font-weight:700;margin-bottom:1rem;}
+.form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.form-select{flex:1;min-width:100px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);}
+.pin-check{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;}
+.pin-check input{accent-color:var(--accent);width:16px;height:16px;}
+
+/* 특수기호 버튼 */
+.special-chars{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;padding:6px;background:var(--bg);border-radius:8px;border:1px solid var(--border);}
+.special-chars span{font-size:11px;color:var(--text3);margin-right:4px;align-self:center;}
+.char-btn{padding:3px 7px;border-radius:5px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer;color:var(--text);}
+.char-btn:hover{background:var(--accent-light);border-color:var(--accent);}
+
+/* Quill 에디터 커스텀 */
+.editor-wrap{border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:10px;}
+.ql-toolbar.ql-snow{border:none;border-bottom:1px solid var(--border);background:var(--bg);flex-wrap:wrap;padding:6px;}
+.ql-container.ql-snow{border:none;font-family:'Noto Sans KR',sans-serif;font-size:14px;min-height:150px;}
+.ql-editor{min-height:150px;padding:12px;}
+.ql-editor.ql-blank::before{font-style:normal;color:var(--text3);}
+
+/* 파일 첨부 */
+.file-drop{border:1.5px dashed var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;position:relative;margin-bottom:10px;}
+.file-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.file-drop-lbl{font-size:13px;color:var(--text2);pointer-events:none;}
+.pending-files{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.pf-thumb{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.pf-thumb img{width:72px;height:72px;object-fit:cover;display:block;}
+.pf-pdf{width:72px;height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);gap:4px;font-size:9px;color:var(--text2);text-align:center;padding:0 4px;}
+.pf-remove{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.55);border:none;cursor:pointer;color:#fff;font-size:11px;}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;}
+.btn-cancel{background:none;border:1px solid var(--border);padding:10px 18px;border-radius:10px;font-size:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;color:var(--text2);}
+.btn-submit{background:var(--accent);color:#fff;border:none;padding:10px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+
+/* NOTE CARDS */
+.notes-list{display:flex;flex-direction:column;gap:10px;}
+.note-card{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1rem;box-shadow:var(--shadow);}
+.note-card.pinned{border-left:3px solid var(--accent);}
+.note-card.editing{border:1.5px solid var(--accent);background:var(--accent-light);}
+.note-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.note-meta{flex:1;min-width:0;}
+.note-author{font-size:13px;font-weight:700;}
+.note-time{font-size:11px;color:var(--text3);}
+.note-actions{display:flex;gap:2px;}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:5px 7px;border-radius:6px;font-size:13px;display:flex;align-items:center;gap:3px;font-family:'Noto Sans KR',sans-serif;}
+.icon-btn:hover{background:var(--bg);color:var(--text);}
+.icon-btn.pin-on{color:var(--accent);}
+.p-badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;}
+.p-urgent{background:#FCEBEB;color:#791F1F;}
+.p-important{background:#FAEEDA;color:#633806;}
+.note-body{font-size:14px;line-height:1.7;}
+.note-body p{margin:0;}
+.note-files{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.file-card{border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;}
+.file-card img{width:80px;height:80px;object-fit:cover;display:block;}
+.file-card-pdf{width:80px;height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);gap:4px;font-size:9px;color:var(--text2);text-align:center;padding:0 4px;}
+.file-card-bar{display:flex;align-items:center;gap:4px;padding:3px 6px;background:var(--bg);border-top:1px solid var(--border);}
+.file-card-bar span{font-size:10px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-card-bar a{color:var(--accent);font-size:12px;text-decoration:none;}
+.note-footer{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.reaction-btn{font-size:12px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg);cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;}
+.reaction-btn.active{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);font-weight:700;}
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:14px;}
+.loading{text-align:center;padding:2rem;color:var(--text2);font-size:14px;}
+.lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.lb.open{display:flex;}
+.lb img{max-width:92vw;max-height:80vh;border-radius:8px;object-fit:contain;}
+.lb-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;cursor:pointer;border-radius:50%;width:36px;height:36px;}
+@media(max-width:480px){.main{padding:.75rem;}.note-actions .icon-btn span{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="lb" id="lb">
+  <button class="lb-close" id="lb-close">✕</button>
+  <img id="lb-img" src="" alt="첨부 이미지">
+  <div style="color:rgba(255,255,255,.6);font-size:12px;" id="lb-name"></div>
+</div>
+
+<!-- PIN 변경 모달 -->
+<div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:340px;margin:1rem;box-shadow:0 8px 40px rgba(0,0,0,0.15);">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:1.25rem;">🔑 PIN 번호 변경</h3>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">현재 PIN</label>
+      <input type="password" id="pin-current" maxlength="4" inputmode="numeric" placeholder="현재 PIN 4자리"
+        style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);font-size:16px;font-family:monospace;letter-spacing:6px;text-align:center;background:var(--bg);color:var(--text);">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">새 PIN</label>
+      <input type="password" id="pin-new" maxlength="4" inputmode="numeric" placeholder="새 PIN 4자리"
+        style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);font-size:16px;font-family:monospace;letter-spacing:6px;text-align:center;background:var(--bg);color:var(--text);">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">새 PIN 확인</label>
+      <input type="password" id="pin-confirm" maxlength="4" inputmode="numeric" placeholder="새 PIN 다시 입력"
+        style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);font-size:16px;font-family:monospace;letter-spacing:6px;text-align:center;background:var(--bg);color:var(--text);">
+    </div>
+    <div id="pin-modal-error" style="color:#A32D2D;font-size:12px;text-align:center;margin-bottom:10px;display:none;"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button id="pin-modal-cancel" style="background:none;border:1px solid var(--border);padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;color:var(--text2);">취소</button>
+      <button id="pin-modal-save" style="background:var(--accent);color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">변경</button>
+    </div>
+  </div>
+</div>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span style="font-size:40px;display:block;margin-bottom:8px;">📚</span>
+      <h1>최선생수학학원</h1>
+      <p>메모장</p>
+    </div>
+    <label class="lbl">선생님 선택</label>
+    <select class="login-select" id="login-user">
+      <option value="">-- 선택하세요 --</option>
+      <option>원장</option>
+      <option>부원장</option>
+    </select>
+    <label class="lbl">PIN 번호 (4자리)</label>
+    <input class="login-pin" type="password" id="login-pin" maxlength="4" placeholder="••••" inputmode="numeric">
+    <button class="login-btn" id="login-btn">로그인</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <div class="app-header">
+    <div class="header-logo">📚 최선생 메모장 <span>선생님 전용</span></div>
+    <div class="header-user">
+      <div class="header-avatar" id="header-avatar"></div>
+      <span style="font-size:13px;color:var(--text2);" id="header-username"></span>
+      <button class="logout-btn" id="pin-change-btn">🔑 PIN 변경</button>
+      <button class="logout-btn" id="logout-btn">로그아웃</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="tabs" id="tabs-row">
+      <div class="tab active" data-tab="전체">전체</div>
+      <div class="tab" data-tab="공지">📢 공지</div>
+      <div class="tab" data-tab="업무">📋 업무</div>
+      <div class="tab" data-tab="학생">👤 학생</div>
+      <div class="tab" data-tab="기타">📝 기타</div>
+    </div>
+    <div id="notes-list" class="notes-list"><div class="loading">메모를 불러오는 중...</div></div>
+  </div>
+  <button class="fab" id="fab-btn">＋</button>
+</div>
+
+<!-- 작성 시트 -->
+<div class="sheet-overlay" id="sheet-overlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-title">새 메모 작성</div>
+    <div class="form-row">
+      <select class="form-select" id="c-category">
+        <option value="공지">📢 공지</option>
+        <option value="업무">📋 업무</option>
+        <option value="학생">👤 학생</option>
+        <option value="기타">📝 기타</option>
+      </select>
+      <select class="form-select" id="c-priority">
+        <option value="normal">일반</option>
+        <option value="important">⚠️ 중요</option>
+        <option value="urgent">🔴 긴급</option>
+      </select>
+      <label class="pin-check"><input type="checkbox" id="c-pin"> 📌 상단고정</label>
+    </div>
+
+    <!-- 특수기호 -->
+    <div class="special-chars">
+      <span>특수기호:</span>
+      <button class="char-btn" data-char="※">※</button>
+      <button class="char-btn" data-char="㉠">㉠</button>
+      <button class="char-btn" data-char="①">①</button>
+      <button class="char-btn" data-char="②">②</button>
+      <button class="char-btn" data-char="③">③</button>
+      <button class="char-btn" data-char="④">④</button>
+      <button class="char-btn" data-char="⑤">⑤</button>
+      <button class="char-btn" data-char="◆">◆</button>
+      <button class="char-btn" data-char="◇">◇</button>
+      <button class="char-btn" data-char="▶">▶</button>
+      <button class="char-btn" data-char="▷">▷</button>
+      <button class="char-btn" data-char="☞">☞</button>
+      <button class="char-btn" data-char="★">★</button>
+      <button class="char-btn" data-char="☆">☆</button>
+      <button class="char-btn" data-char="✓">✓</button>
+      <button class="char-btn" data-char="✕">✕</button>
+      <button class="char-btn" data-char="→">→</button>
+      <button class="char-btn" data-char="⇒">⇒</button>
+      <button class="char-btn" data-char="…">…</button>
+      <button class="char-btn" data-char="『">『</button>
+      <button class="char-btn" data-char="』">』</button>
+      <button class="char-btn" data-char="【">【</button>
+      <button class="char-btn" data-char="】">】</button>
+    </div>
+
+    <!-- Quill 에디터 -->
+    <div class="editor-wrap">
+      <div id="quill-editor"></div>
+    </div>
+
+    <!-- 파일 첨부 -->
+    <div class="file-drop" id="file-drop-area">
+      <input type="file" id="file-input" accept="image/*,.pdf,.hwp,.docx,.xlsx,.pptx" multiple>
+      <div class="file-drop-lbl">📎 파일 첨부 (이미지·PDF·문서, 최대 5개 / 각 500KB 이하)</div>
+    </div>
+    <div class="pending-files" id="pending-files"></div>
+    <div class="btn-row">
+      <button class="btn-cancel" id="btn-cancel">취소</button>
+      <button class="btn-submit" id="btn-submit">등록</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyC6_EjWngSf_EQuqYP7j_rkC53fZUk6UCs",
+  authDomain:"choi-math-memo-1d6e6.firebaseapp.com",
+  projectId:"choi-math-memo-1d6e6",
+  storageBucket:"choi-math-memo-1d6e6.firebasestorage.app",
+  messagingSenderId:"805131169031",
+  appId:"1:805131169031:web:ed09dc28e2ae030f9329a2"
+});
+const db = firebase.firestore();
+
+const AVATARS={
+  '원장':{bg:'#E1F5EE',c:'#0F6E56'},
+  '부원장':{bg:'#E6F1FB',c:'#185FA5'},
+};
+let PIN='1234'; // Firebase에서 로드됨
+let currentUser=null, currentTab='전체', editingId=null;
+let pendingFiles=[], notes=[], unsubscribe=null;
+
+// Quill 초기화
+const quill = new Quill('#quill-editor', {
+  theme: 'snow',
+  placeholder: '내용을 입력하세요...',
+  modules: {
+    toolbar: [
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['blockquote'],
+      ['clean']
+    ]
+  }
+});
+
+// 특수기호 삽입
+document.querySelectorAll('.char-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    const range = quill.getSelection(true);
+    quill.insertText(range.index, this.dataset.char);
+    quill.setSelection(range.index + this.dataset.char.length);
+  });
+});
+
+// 로그인
+// Firebase에서 PIN 로드
+async function loadPIN(){
+  try{
+    const doc = await db.collection('settings').doc('memo_pin').get();
+    if(doc.exists && doc.data().pin) PIN = doc.data().pin;
+  }catch(e){}
+}
+loadPIN();
+
+// PIN 변경 모달
+document.getElementById('pin-change-btn').addEventListener('click',()=>{
+  document.getElementById('pin-current').value='';
+  document.getElementById('pin-new').value='';
+  document.getElementById('pin-confirm').value='';
+  document.getElementById('pin-modal-error').style.display='none';
+  document.getElementById('pin-modal').style.display='flex';
+});
+document.getElementById('pin-modal-cancel').addEventListener('click',()=>{
+  document.getElementById('pin-modal').style.display='none';
+});
+document.getElementById('pin-modal-save').addEventListener('click',async()=>{
+  const current = document.getElementById('pin-current').value;
+  const newPin = document.getElementById('pin-new').value;
+  const confirm = document.getElementById('pin-confirm').value;
+  const err = document.getElementById('pin-modal-error');
+
+  if(current !== PIN){
+    err.textContent='현재 PIN이 올바르지 않아요.';err.style.display='block';return;
+  }
+  if(newPin.length !== 4 || !/^\d+$/.test(newPin)){
+    err.textContent='새 PIN은 4자리 숫자로 입력해 주세요.';err.style.display='block';return;
+  }
+  if(newPin !== confirm){
+    err.textContent='새 PIN이 일치하지 않아요.';err.style.display='block';return;
+  }
+  try{
+    await db.collection('settings').doc('memo_pin').set({pin: newPin});
+    PIN = newPin;
+    document.getElementById('pin-modal').style.display='none';
+    alert('PIN이 변경됐어요! 선생님들께 새 PIN을 알려주세요.');
+  }catch(e){
+    err.textContent='저장 중 오류가 발생했어요.';err.style.display='block';
+  }
+});
+
+
+// 자동 로그인 체크 (8시간 유지)
+(function(){
+  try{
+    const saved = sessionStorage.getItem('choi_memo_login');
+    if(!saved) return;
+    const data = JSON.parse(saved);
+    const elapsed = Date.now() - data.time;
+    const EIGHT_HOURS = 8 * 60 * 60 * 1000;
+    if(elapsed > EIGHT_HOURS){
+      sessionStorage.removeItem('choi_memo_login');
+      return;
+    }
+    // 자동 로그인
+    currentUser = data.user;
+    const av = AVATARS[currentUser]||{bg:'#F1EFE8',c:'#444441'};
+    const ha = document.getElementById('header-avatar');
+    ha.textContent = currentUser.slice(0,1);
+    ha.style.background = av.bg;
+    ha.style.color = av.c;
+    document.getElementById('header-username').textContent = currentUser;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    startListen();
+  }catch(e){ sessionStorage.removeItem('choi_memo_login'); }
+})();
+
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('login-pin').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function doLogin(){
+  const user=document.getElementById('login-user').value;
+  const pin=document.getElementById('login-pin').value;
+  const err=document.getElementById('login-error');
+  if(!user){err.textContent='선생님을 선택해 주세요.';err.style.display='block';return;}
+  if(pin!==PIN){err.textContent='PIN 번호가 올바르지 않아요.';err.style.display='block';return;}
+  err.style.display='none';
+  currentUser=user;
+  const av=AVATARS[user]||{bg:'#F1EFE8',c:'#444441'};
+  const ha=document.getElementById('header-avatar');
+  ha.textContent=user.slice(0,1);ha.style.background=av.bg;ha.style.color=av.c;
+  document.getElementById('header-username').textContent=user;
+  // 로그인 상태 저장 (8시간 유지)
+  const loginData = {user: currentUser, time: Date.now()};
+  sessionStorage.setItem('choi_memo_login', JSON.stringify(loginData));
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  startListen();
+}
+
+document.getElementById('logout-btn').addEventListener('click',()=>{
+  if(unsubscribe)unsubscribe();
+  currentUser=null;notes=[];
+  sessionStorage.removeItem('choi_memo_login');
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-pin').value='';
+});
+
+function startListen(){
+  const q=db.collection('notes').orderBy('createdAt','desc');
+  unsubscribe=q.onSnapshot(snap=>{
+    notes=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderNotes();
+  });
+}
+
+function renderFiles(files){
+  if(!files||!files.length)return '';
+  return '<div class="note-files">'+files.map(f=>{
+    if(f.type==='pdf'||(!f.type.startsWith('image/')))
+      return `<div class="file-card"><div class="file-card-pdf"><div style="font-size:22px;">📄</div>${f.name}</div><div class="file-card-bar"><span>${f.name}</span><a href="${f.url}" download="${f.name}">⬇</a></div></div>`;
+    const su=f.url.replace(/'/g,"\\'"),sn=f.name.replace(/'/g,"\\'");
+    return `<div class="file-card" onclick="openLb('${su}','${sn}')"><img src="${f.url}" alt="${f.name}"><div class="file-card-bar"><span>${f.name}</span><a href="${f.url}" download="${f.name}" onclick="event.stopPropagation()">⬇</a></div></div>`;
+  }).join('')+'</div>';
+}
+
+function renderNotes(){
+  const list=document.getElementById('notes-list');
+  let filtered=notes.filter(n=>currentTab==='전체'||n.tab===currentTab);
+  filtered.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+  if(!filtered.length){list.innerHTML='<div class="empty">📭 메모가 없어요</div>';return;}
+  list.innerHTML=filtered.map(n=>{
+    const av=AVATARS[n.author]||{bg:'#F1EFE8',c:'#444441'};
+    const badge=n.priority==='urgent'?'<span class="p-badge p-urgent">긴급</span>':n.priority==='important'?'<span class="p-badge p-important">중요</span>':'';
+    const likes=n.likes||[];
+    // 본문: html이면 그대로, 아니면 텍스트로 표시 (마이그레이션)
+    const bodyHtml=n.htmlBody
+      ? n.htmlBody
+      : '<p>'+escHtml(n.body||'').replace(/\n/g,'<br>')+'</p>';
+    return `<div class="note-card ${n.pinned?'pinned':''}" id="nc-${n.id}">
+      <div class="note-header">
+        <div class="avatar" style="background:${av.bg};color:${av.c};">${n.author.slice(0,1)}</div>
+        <div class="note-meta">
+          <div class="note-author">${n.author}${n.pinned?' 📌':''}</div>
+          <div class="note-time">${n.time||''} · ${n.category}${n.edited?' <span style="font-size:10px;color:var(--text3)">(수정됨)</span>':''}</div>
+        </div>
+        ${badge}
+        <div class="note-actions">
+          <button class="icon-btn ${n.pinned?'pin-on':''}" data-pin="${n.id}" data-pinned="${n.pinned?'1':'0'}">📌 <span>${n.pinned?'해제':'고정'}</span></button>
+          <button class="icon-btn" data-edit="${n.id}">✏️</button>
+          <button class="icon-btn" data-del="${n.id}">🗑️</button>
+        </div>
+      </div>
+      <div class="note-body">${bodyHtml}</div>
+      ${renderFiles(n.files)}
+      <div class="note-footer">
+        <button class="reaction-btn ${likes.length?'active':''}" data-like="${n.id}">
+          👍 확인${likes.length?' '+likes.length:''}
+        </button>
+        ${likes.length?`<span style="font-size:11px;color:var(--text3);">${likes.join(', ')}</span>`:''}
+        ${n.files&&n.files.length?`<span style="font-size:11px;color:var(--text3);">📎 ${n.files.length}개</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// 이벤트 위임
+document.getElementById('notes-list').addEventListener('click',function(e){
+  const pinBtn=e.target.closest('[data-pin]');
+  const editBtn=e.target.closest('[data-edit]');
+  const delBtn=e.target.closest('[data-del]');
+  const likeBtn=e.target.closest('[data-like]');
+  if(pinBtn){db.collection('notes').doc(pinBtn.dataset.pin).update({pinned:pinBtn.dataset.pinned!=='1'});}
+  if(editBtn){
+    const n=notes.find(n=>n.id===editBtn.dataset.edit);if(!n)return;
+    editingId=n.id;
+    document.getElementById('sheet-title').textContent='메모 수정';
+    document.getElementById('c-category').value=n.category||'기타';
+    document.getElementById('c-priority').value=n.priority||'normal';
+    document.getElementById('c-pin').checked=!!n.pinned;
+    // 기존 html 또는 텍스트 로드
+    if(n.htmlBody){quill.root.innerHTML=n.htmlBody;}
+    else{quill.setText(n.body||'');}
+    document.getElementById('sheet-overlay').classList.add('open');
+  }
+  if(delBtn){if(confirm('이 메모를 삭제할까요?'))db.collection('notes').doc(delBtn.dataset.del).delete();}
+  if(likeBtn){
+    const n=notes.find(n=>n.id===likeBtn.dataset.like);if(!n)return;
+    const likes=n.likes||[];
+    const updated=likes.includes(currentUser)?likes.filter(l=>l!==currentUser):[...likes,currentUser];
+    db.collection('notes').doc(likeBtn.dataset.like).update({likes:updated});
+  }
+});
+
+// 탭
+document.getElementById('tabs-row').addEventListener('click',function(e){
+  const tab=e.target.closest('.tab');if(!tab)return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');currentTab=tab.dataset.tab;renderNotes();
+});
+
+// FAB / 시트
+document.getElementById('fab-btn').addEventListener('click',()=>{
+  editingId=null;
+  document.getElementById('sheet-title').textContent='새 메모 작성';
+  quill.setText('');
+  document.getElementById('c-pin').checked=false;
+  pendingFiles=[];renderPendingFiles();
+  document.getElementById('sheet-overlay').classList.add('open');
+});
+document.getElementById('btn-cancel').addEventListener('click',closeSheet);
+// 바깥 클릭해도 닫히지 않음 (취소 버튼으로만 닫기)
+function closeSheet(){
+  document.getElementById('sheet-overlay').classList.remove('open');
+  quill.setText('');
+  document.getElementById('c-pin').checked=false;
+  pendingFiles=[];renderPendingFiles();
+  editingId=null;
+}
+
+// 등록
+document.getElementById('btn-submit').addEventListener('click',()=>{
+  const htmlBody=quill.root.innerHTML;
+  const text=quill.getText().trim();
+  if(!text){alert('내용을 입력해 주세요.');return;}
+  const cat=document.getElementById('c-category').value;
+  const now=new Date();
+  const timeStr=`${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const data={
+    author:currentUser,category:cat,tab:cat,
+    priority:document.getElementById('c-priority').value,
+    pinned:document.getElementById('c-pin').checked,
+    body:text,htmlBody,
+    time:timeStr,likes:[],files:[...pendingFiles],edited:false,
+  };
+  if(editingId){
+    db.collection('notes').doc(editingId).update({...data,edited:true});
+  } else {
+    data.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+    db.collection('notes').add(data);
+  }
+  closeSheet();
+});
+
+// 파일 첨부
+document.getElementById('file-input').addEventListener('change',e=>{handleFiles(Array.from(e.target.files));e.target.value='';});
+const fda=document.getElementById('file-drop-area');
+fda.addEventListener('dragover',e=>{e.preventDefault();fda.style.background='var(--accent-light)';});
+fda.addEventListener('dragleave',()=>fda.style.background='');
+fda.addEventListener('drop',e=>{e.preventDefault();fda.style.background='';handleFiles(Array.from(e.dataTransfer.files));});
+
+function handleFiles(files){
+  const allowed=files.filter(f=>f.type.startsWith('image/')||f.type==='application/pdf'||f.name.match(/\.(hwp|docx|xlsx|pptx)$/i));
+  if(pendingFiles.length+allowed.length>5){alert('최대 5개까지 첨부할 수 있어요.');return;}
+  allowed.forEach(f=>{
+    if(f.size>500*1024){alert(`"${f.name}" 파일이 너무 커요. 500KB 이하만 가능해요.`);return;}
+    const r=new FileReader();
+    r.onload=ev=>{
+      const type=f.type.startsWith('image/')?'image':'pdf';
+      pendingFiles.push({name:f.name,type,url:ev.target.result});
+      renderPendingFiles();
+    };
+    r.readAsDataURL(f);
+  });
+}
+function renderPendingFiles(){
+  const el=document.getElementById('pending-files');
+  if(!pendingFiles.length){el.innerHTML='';return;}
+  el.innerHTML=pendingFiles.map((f,i)=>{
+    if(f.type==='image') return `<div class="pf-thumb"><img src="${f.url}" style="width:72px;height:72px;object-fit:cover;display:block;"><button class="pf-remove" onclick="removePF(${i})">✕</button></div>`;
+    return `<div class="pf-thumb"><div class="pf-pdf"><div style="font-size:24px;">📄</div>${f.name}</div><button class="pf-remove" onclick="removePF(${i})">✕</button></div>`;
+  }).join('');
+}
+window.removePF=function(i){pendingFiles.splice(i,1);renderPendingFiles();};
+
+// 라이트박스
+function openLb(url,name){document.getElementById('lb-img').src=url;document.getElementById('lb-name').textContent=name;document.getElementById('lb').classList.add('open');}
+document.getElementById('lb').addEventListener('click',()=>document.getElementById('lb').classList.remove('open'));
+document.getElementById('lb-close').addEventListener('click',()=>document.getElementById('lb').classList.remove('open'));
+window.openLb=openLb;
+</script>
+</body>
+</html>

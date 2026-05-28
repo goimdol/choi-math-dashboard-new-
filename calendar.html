@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>최선생수학학원 — 학원 캘린더</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#1D9E75;--accent-light:#E1F5EE;--accent-dark:#0F6E56;--bg:#FAFAFA;--card:#FFF;--border:#E8E8E8;--text:#1A1A1A;--text2:#666;--text3:#AAA;--shadow:0 1px 3px rgba(0,0,0,0.06);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0F6E56,#1D9E75,#5DCAA5);}
+.login-card{background:#fff;border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
+.login-logo{text-align:center;margin-bottom:1.5rem;}
+.login-logo-icon{font-size:40px;display:block;margin-bottom:8px;}
+.login-logo h1{font-size:18px;font-weight:700;}
+.login-logo p{font-size:13px;color:var(--text2);margin-top:4px;}
+.lbl{font-size:13px;color:var(--text2);margin-bottom:6px;display:block;}
+.login-select,.login-pin{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);margin-bottom:1rem;}
+.login-select{font-size:15px;cursor:pointer;}
+.login-select:focus,.login-pin:focus{outline:none;border-color:var(--accent);}
+.login-pin{font-size:22px;letter-spacing:10px;font-family:monospace;text-align:center;margin-bottom:1.5rem;}
+.login-btn{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+.login-btn:hover{background:var(--accent-dark);}
+.login-error{color:#A32D2D;font-size:12px;text-align:center;margin-top:8px;display:none;}
+.app-header{background:#fff;border-bottom:1px solid var(--border);padding:0 1.25rem;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.header-logo{font-size:15px;font-weight:700;color:var(--accent);flex:1;}
+.header-logo span{font-size:12px;font-weight:400;color:var(--text2);margin-left:6px;}
+.header-user{display:flex;align-items:center;gap:8px;}
+.header-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.hdr-btn{background:none;border:1px solid var(--border);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;}
+.hdr-btn:hover{background:#F0F0F0;}
+.app-body{display:flex;height:calc(100vh - 56px);overflow:hidden;}
+.cal-section{flex:1;min-width:0;overflow-y:auto;padding:1.25rem 1.5rem;}
+.cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;}
+.cal-nav h2{font-size:20px;font-weight:700;margin-right:4px;}
+.memo-section{width:270px;flex-shrink:0;border-left:1px solid var(--border);background:#fff;display:flex;flex-direction:column;overflow:hidden;}
+.memo-header{padding:1rem 1rem 0.75rem;border-bottom:1px solid var(--border);}
+.memo-header h3{font-size:14px;font-weight:700;}
+.memo-header p{font-size:11px;color:var(--text3);margin-top:2px;}
+.memo-body{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:10px;}
+.memo-ta{flex:1;min-height:200px;padding:10px;border-radius:10px;border:1px solid var(--border);font-size:13px;line-height:1.7;font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);word-break:break-word;white-space:pre-wrap;}
+.memo-ta:focus{outline:none;border-color:var(--accent);}
+.memo-ta:empty:before{content:attr(data-placeholder);color:var(--text3);pointer-events:none;}
+.memo-save-btn{width:100%;padding:9px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.memo-save-btn:hover{background:var(--accent-dark);}
+.memo-saved{font-size:11px;color:var(--accent);text-align:center;display:none;}
+.memo-toolbar{display:flex;flex-wrap:wrap;gap:4px;padding:6px;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:6px;}
+.memo-tool-btn{background:#fff;border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:12px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;gap:3px;}
+.memo-tool-btn:hover{background:var(--accent-light);color:var(--accent-dark);}
+.memo-tool-sep{width:1px;background:var(--border);margin:0 2px;align-self:stretch;}
+.memo-color-btn{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;flex-shrink:0;}
+.memo-color-btn.active,.memo-color-btn:hover{border-color:var(--text);}
+.memo-file-list{display:flex;flex-direction:column;gap:6px;margin-top:4px;}
+.memo-file-item{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:6px;padding:6px 8px;border:1px solid var(--border);}
+.memo-file-icon{font-size:16px;flex-shrink:0;}
+.memo-file-name{flex:1;font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.memo-file-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 2px;}
+.memo-file-link{font-size:11px;color:var(--accent);text-decoration:none;}
+.memo-img-preview{width:100%;border-radius:6px;margin-top:4px;border:1px solid var(--border);}
+.memo-sel-btn{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.6);cursor:pointer;flex-shrink:0;transition:border-color .15s;}
+.memo-sel-btn:hover{border-color:var(--text);transform:scale(1.15);}
+.cal-grid{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow);}
+.cal-header-row{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border);}
+.cal-dow{padding:10px 0;text-align:center;font-size:12px;font-weight:500;color:var(--text3);}
+.cal-dow:first-child{color:#E06060;}
+.cal-dow:last-child{color:#5580D0;}
+.cal-body{display:flex;flex-direction:column;}
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);position:relative;border-bottom:1px solid var(--border);}
+.cal-week:last-child{border-bottom:none;}
+.week-events{position:absolute;top:28px;left:0;right:0;pointer-events:none;z-index:3;}
+.ev-bar{position:absolute;height:20px;border-radius:4px;font-size:10px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px;line-height:20px;cursor:pointer;pointer-events:all;}
+.ev-bar:hover{filter:brightness(0.92);}
+.ev-bar.dragging{opacity:0.4;}
+.cal-cell{min-height:110px;border-right:1px solid var(--border);padding:6px 6px 4px;position:relative;}
+.cal-cell:nth-child(7n){border-right:none;}
+.cal-cell.other-month{background:#FAFAFA;}
+.cal-cell.other-month .day-num{color:#CCC;}
+.cal-cell:hover .plus-btn{opacity:1!important;}
+.day-num{font-size:13px;font-weight:500;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;margin-bottom:3px;}
+.cal-cell.today .day-num{background:var(--accent);color:#fff!important;}
+.cal-cell:nth-child(7n+1) .day-num{color:#E06060;}
+.cal-cell:nth-child(7n) .day-num{color:#5580D0;}
+.plus-btn{opacity:0;position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:none;background:#E8E8E8;color:#666;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity 0.15s,background 0.15s;z-index:1;}
+.plus-btn:hover{background:var(--accent);color:#fff;}
+.event-cards{display:flex;flex-direction:column;gap:2px;margin-top:2px;}
+.ev-card{border-radius:5px;padding:3px 7px;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.ev-card:hover{filter:brightness(0.93);}
+.more-link{font-size:10px;color:var(--text3);padding:2px 4px;}
+.ev-card{border-radius:5px;padding:3px 7px;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.ev-card.dragging{opacity:0.4;cursor:grabbing;}
+.ev-card[draggable="true"]{cursor:grab;}
+.cal-cell.drag-over{background:#E1F5EE!important;outline:2px dashed var(--accent);}
+.holiday-cell{background:#FFF5F5!important;}
+.holiday-tag{font-size:10px;color:#E06060;font-weight:500;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* POPUP */
+.ev-popup{position:fixed;background:#fff;border-radius:12px;padding:1rem 1.25rem;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:600;min-width:220px;max-width:280px;display:none;border:1px solid var(--border);}
+.ev-popup.open{display:block;}
+.ev-popup-header{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;}
+.ev-popup-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;margin-top:3px;}
+.ev-popup-title{font-size:14px;font-weight:700;margin-bottom:3px;}
+.ev-popup-meta{font-size:12px;color:var(--text2);}
+.ev-popup-close-btn{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;margin-left:auto;line-height:1;padding:0;}
+.ev-popup-actions{display:flex;gap:6px;}
+.ev-popup-edit-btn{background:var(--accent-light);color:var(--accent-dark);border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.ev-popup-del-btn{background:#FEF0F0;color:#D04040;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(0,0,0,0.12);}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:1.25rem;}
+.modal-field{margin-bottom:12px;}
+.modal-field label{font-size:11px;color:var(--text3);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.modal-input{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-size:14px;font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);}
+.modal-input:focus{outline:none;border-color:var(--accent);}
+.date-row{display:flex;gap:8px;align-items:center;}
+.date-row .modal-input{flex:1;}
+.date-row span{color:var(--text3);font-size:13px;}
+.color-row{display:flex;gap:8px;flex-wrap:wrap;}
+.color-opt{width:26px;height:26px;border-radius:6px;cursor:pointer;border:3px solid transparent;transition:border-color .15s;}
+.color-opt.selected{border-color:#333;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;}
+.btn-del{background:#FEF0F0;color:#D04040;border:none;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-right:auto;}
+.btn-cancel{background:none;border:1px solid var(--border);padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;color:var(--text2);}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.btn-save:hover{background:var(--accent-dark);}
+/* 관리 모달 */
+.mgmt-tabs{display:flex;gap:8px;margin-bottom:1rem;}
+.mgmt-tab{background:none;border:1px solid var(--border);padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;}
+.mgmt-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500;}
+.pin-row{display:flex;gap:6px;margin-bottom:8px;align-items:center;}
+.pin-name{font-size:12px;color:var(--text2);width:60px;flex-shrink:0;}
+.pin-input{flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--border);font-size:14px;font-family:monospace;background:var(--bg);color:var(--text);letter-spacing:4px;}
+.pin-input:focus{outline:none;border-color:var(--accent);}
+.pin-save-btn{background:var(--accent-light);color:var(--accent-dark);border:none;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.teacher-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--bg);margin-bottom:6px;}
+.teacher-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.teacher-name{flex:1;font-size:13px;font-weight:500;}
+.teacher-del-btn{background:#FEF0F0;color:#D04040;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.noti-recv-tag{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;color:var(--text2);transition:all .15s;}
+.noti-recv-tag.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent-dark);}
+/* 알림함 아이템 */
+.noti-item{background:var(--bg);border-radius:10px;padding:12px 14px;border:1px solid var(--border);position:relative;}
+.noti-item.unread{border-color:var(--accent);background:var(--accent-light);}
+.noti-item-header{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.noti-item-title{font-size:13px;font-weight:700;flex:1;}
+.noti-item-time{font-size:11px;color:var(--text3);}
+.noti-item-body{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:4px;}
+.noti-item-meta{font-size:11px;color:var(--text3);}
+.noti-item-del{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 4px;}
+.noti-item-del:hover{color:#D04040;}
+/* 알림 버튼 */
+.noti-btn{background:none;border:1px solid var(--border);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;display:none;}
+.noti-btn:hover{background:#F0F0F0;}
+/* 알림함 버튼 깜박임 */
+@keyframes noti-pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(224,96,96,0.5);border-color:var(--border);}
+  50%{box-shadow:0 0 0 5px rgba(224,96,96,0);border-color:#E06060;}
+}
+.noti-ringing{animation:noti-pulse 1.2s infinite;border-color:#E06060!important;color:#E06060!important;font-weight:700;}
+
+/* 인쇄 스타일 */
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: fixed; left: 0; top: 0; width: 100%; }
+  .app-header, .memo-section, .fab, .noti-inbox-open-btn,
+  .noti-send-btn-wrap, #mgmt-btn, .logout-btn { display: none !important; }
+  .cal-section { padding: 0 !important; }
+  .print-header { display: block !important; }
+}
+.print-header { display: none; text-align: center; margin-bottom: 12px; font-size: 16px; font-weight: 700; }
+/* 알림 모달 */
+.noti-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;}
+.noti-modal-overlay.open{display:flex;}
+.noti-modal{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(0,0,0,0.12);}
+.noti-modal h3{font-size:15px;font-weight:700;margin-bottom:1.25rem;}
+.noti-type-row{display:flex;gap:8px;margin-bottom:1rem;}
+.noti-type-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;color:var(--text2);transition:all .15s;}
+.noti-type-btn.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent-dark);}
+.noti-ta{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);font-size:14px;font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);resize:none;height:100px;line-height:1.6;}
+.noti-ta:focus{outline:none;border-color:var(--accent);}
+.noti-send-btn{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:1rem;}
+.noti-send-btn:hover{background:var(--accent-dark);}
+/* 수신 알림 토스트 */
+.noti-toast-wrap{position:fixed;top:68px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.noti-toast{background:#1c1c1e;color:white;border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.4);min-width:280px;max-width:340px;pointer-events:all;transform:translateX(110%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);border:1px solid rgba(255,255,255,0.08);}
+.noti-toast.show{transform:translateX(0);}
+.noti-toast.hide{transform:translateX(110%);transition:transform 0.3s ease-in;}
+.noti-toast-icon{width:32px;height:32px;border-radius:8px;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.noti-toast-body{flex:1;}
+.noti-toast-app{font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:2px;}
+.noti-toast-title{font-size:13px;font-weight:700;margin-bottom:2px;}
+.noti-toast-msg{font-size:12px;color:rgba(255,255,255,0.75);line-height:1.4;}
+.noti-badge{display:inline-block;background:#E06060;color:white;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;text-align:center;line-height:16px;margin-left:4px;vertical-align:middle;}
+@media(max-width:768px){
+  .app-body{flex-direction:column;height:auto;overflow:visible;}
+  .cal-section{padding:.75rem;}
+  .memo-section{width:100%;border-left:none;border-top:1px solid var(--border);}
+  .cal-cell{min-height:72px;padding:3px;}
+  .day-num{font-size:12px;width:22px;height:22px;}
+  .ev-card{font-size:10px;padding:2px 4px;}
+  .holiday-tag{font-size:9px;}
+  .plus-btn{width:18px;height:18px;font-size:13px;opacity:1!important;}
+  .cal-dow{font-size:11px;padding:7px 0;}
+  .cal-nav h2{font-size:16px;}
+  .header-logo span{display:none;}
+  .header-user{gap:4px;}
+  .hdr-btn{padding:4px 6px;font-size:11px;}
+  .noti-btn{padding:4px 6px;font-size:11px;}
+  #header-username{display:none;}
+  #noti-inbox-open-btn{font-size:14px;padding:4px 8px;}
+  .noti-toast{min-width:240px;max-width:calc(100vw - 32px);}
+  .memo-body{padding:.75rem;}
+  .memo-ta{min-height:120px;}
+}
+@media(max-width:480px){
+  .cal-cell{min-height:58px;padding:2px;}
+  .day-num{font-size:11px;width:20px;height:20px;}
+  .ev-card{font-size:9px;padding:1px 3px;}
+  .holiday-tag{font-size:9px;}
+  .more-link{font-size:9px;}
+  .header-logo{font-size:13px;}
+  .hdr-btn{padding:4px 8px;font-size:11px;}
+}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div id="login-date-display" style="margin-bottom:12px;"></div>
+      <h1>최선생수학학원</h1>
+      <p>학원 공유 캘린더</p>
+    </div>
+    <label class="lbl">로그인 구분</label>
+    <select class="login-select" id="login-user">
+      <option value="">-- 선택하세요 --</option>
+      <option value="원장">원장</option>
+      <option value="혜인T">혜인T</option>
+      <option value="하영T">하영T</option>
+      <option value="영훈T">영훈T</option>
+      <option value="도희T">도희T</option>
+      <option value="지영T">지영T</option>
+      <option value="정섭T">정섭T</option>
+      <option value="경민T">경민T</option>
+      <option value="정인T">정인T</option>
+    </select>
+    <label class="lbl">PIN 번호 (4자리)</label>
+    <input class="login-pin" type="password" id="login-pin" maxlength="4" placeholder="••••" inputmode="numeric">
+    <button class="login-btn" id="login-btn">로그인</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <div class="app-header">
+    <div class="header-logo">📅 최선생 캘린더 <span>학원 일정 공유</span></div>
+    <div class="header-user">
+      <div class="header-avatar" id="header-avatar"></div>
+      <span style="font-size:13px;color:var(--text2);margin-right:4px;" id="header-username"></span>
+      <button class="hdr-btn" id="mgmt-btn" style="display:none;">⚙️ 관리</button>
+      <button class="noti-btn" id="noti-send-open-btn">🔔 알림 보내기</button>
+      <button class="hdr-btn" id="noti-inbox-open-btn" style="display:none;">🔔 알림함 <span class="noti-badge" id="noti-badge" style="display:none;">0</span></button>
+      <button class="hdr-btn" id="print-btn">🖨️ 인쇄</button>
+      <button class="hdr-btn" id="logout-btn">로그아웃</button>
+    </div>
+  </div>
+  <div class="app-body">
+    <div class="cal-section print-area">
+      <div class="print-header" id="print-header">최선생수학학원 학원 캘린더</div>
+      <div class="cal-nav">
+        <button class="hdr-btn" id="prev-btn">‹</button>
+        <button class="hdr-btn" id="next-btn">›</button>
+        <h2 id="cal-title"></h2>
+        <button class="hdr-btn" id="today-btn">오늘</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-header-row">
+          <div class="cal-dow">일</div><div class="cal-dow">월</div>
+          <div class="cal-dow">화</div><div class="cal-dow">수</div>
+          <div class="cal-dow">목</div><div class="cal-dow">금</div>
+          <div class="cal-dow">토</div>
+        </div>
+        <div class="cal-body" id="cal-body"></div>
+      </div>
+    </div>
+    <div class="memo-section">
+      <div class="memo-header">
+        <h3>📝 메모장</h3>
+        <p id="memo-date-label" style="font-size:12px;color:var(--text3);margin-top:2px;"></p>
+      </div>
+      <div class="memo-body">
+        <!-- 툴바 (원장만) -->
+        <div class="memo-toolbar" id="memo-toolbar-wrap">
+          <select id="memo-font-size" class="memo-tool-btn" style="padding:3px 5px;">
+            <option value="12px">소</option>
+            <option value="14px" selected>중</option>
+            <option value="16px">대</option>
+            <option value="18px">특대</option>
+          </select>
+          <div class="memo-tool-sep"></div>
+          <span style="font-size:10px;color:var(--text3);align-self:center;">색상:</span>
+          <div class="memo-color-btn active" data-color="#1A1A1A" style="background:#1A1A1A;" title="검정"></div>
+          <div class="memo-color-btn" data-color="#E06060" style="background:#E06060;" title="빨강"></div>
+          <div class="memo-color-btn" data-color="#1D9E75" style="background:#1D9E75;" title="초록"></div>
+          <div class="memo-color-btn" data-color="#5580D0" style="background:#5580D0;" title="파랑"></div>
+          <div class="memo-color-btn" data-color="#E8934A" style="background:#E8934A;" title="주황"></div>
+          <div class="memo-color-btn" data-color="#8A5CF6" style="background:#8A5CF6;" title="보라"></div>
+          <div class="memo-tool-sep"></div>
+          <label class="memo-tool-btn" style="cursor:pointer;position:relative;">
+            📎 파일
+            <input type="file" id="memo-file-input" accept="image/*,.pdf,.hwp,.docx,.xlsx,.pptx" multiple style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+          </label>
+        </div>
+        <div class="memo-ta" id="memo-ta" contenteditable="true" spellcheck="false" data-placeholder="회의 내용, 할 일, 아이디어 등 자유롭게 적어보세요..."></div>
+        <div id="memo-preview" class="memo-ta" style="display:none;cursor:default;"></div>
+        <div id="memo-file-list" class="memo-file-list"></div>
+        <button class="memo-save-btn" id="memo-save-btn" style="display:none;">저장</button>
+        <div class="memo-saved" id="memo-saved">✓ 저장됐어요!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 일정 팝업 -->
+<div class="ev-popup" id="ev-popup">
+  <div class="ev-popup-header">
+    <div class="ev-popup-dot" id="ev-popup-dot"></div>
+    <div style="flex:1;">
+      <div class="ev-popup-title" id="ev-popup-title"></div>
+      <div class="ev-popup-meta" id="ev-popup-meta"></div>
+    </div>
+    <button class="ev-popup-close-btn" id="ev-popup-close">×</button>
+  </div>
+  <div class="ev-popup-actions" id="ev-popup-actions"></div>
+</div>
+
+<!-- 일정 추가/수정 모달 -->
+<div class="modal-overlay" id="ev-modal">
+  <div class="modal">
+    <h3 id="ev-modal-title">일정 추가</h3>
+    <div class="modal-field">
+      <label>제목</label>
+      <input class="modal-input" type="text" id="ev-title" placeholder="일정 제목">
+    </div>
+    <div class="modal-field">
+      <label>날짜</label>
+      <div class="date-row">
+        <input class="modal-input" type="date" id="ev-start">
+        <span>~</span>
+        <input class="modal-input" type="date" id="ev-end">
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>시간 (선택)</label>
+      <input class="modal-input" type="time" id="ev-time">
+    </div>
+    <div class="modal-field">
+      <label>색상</label>
+      <div class="color-row" style="flex-wrap:wrap;gap:10px;">
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);">
+          <div class="color-opt selected" data-color="#C5705D" data-bg="#FBEFEF" style="background:#FBEFEF;border:2px solid #C5705D;flex-shrink:0;"></div>중등시험
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);">
+          <div class="color-opt" data-color="#333333" data-bg="#F5FAE1" style="background:#F5FAE1;border:2px solid #AABB77;flex-shrink:0;"></div>고등시험
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);">
+          <div class="color-opt" data-color="#000000" data-bg="#FFFECB" style="background:#FFFECB;border:2px solid #CCCC00;flex-shrink:0;"></div>학원행사
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);">
+          <div class="color-opt" data-color="#5580D0" data-bg="#E6F1FB" style="background:#5580D0;flex-shrink:0;"></div>방학
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);">
+          <div class="color-opt" data-color="#213C51" data-bg="#C7EABB" style="background:#C7EABB;border:2px solid #213C51;flex-shrink:0;"></div>기타
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);">
+          <div class="color-opt" data-color="#8A5CF6" data-bg="#EEEDFE" style="background:#8A5CF6;flex-shrink:0;"></div>회의
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);">
+          <div class="color-opt" data-color="#E8B84B" data-bg="#FDF6DC" style="background:#E8B84B;flex-shrink:0;"></div>공지
+        </label>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>메모 (선택)</label>
+      <input class="modal-input" type="text" id="ev-memo" placeholder="간단한 설명">
+    </div>
+    <div class="modal-field">
+      <label>반복 설정</label>
+      <select class="modal-input" id="ev-repeat">
+        <option value="none">반복 없음</option>
+        <option value="week">매주 반복 (1주)</option>
+        <option value="month">매월 반복 (1개월)</option>
+        <option value="last-friday">매월 마지막 주 금요일</option>
+        <option value="year">매년 반복 (1년)</option>
+      </select>
+    </div>
+    <div class="modal-field" id="ev-repeat-count-field" style="display:none;">
+      <label>반복 횟수</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input class="modal-input" type="number" id="ev-repeat-count" min="1" max="52" value="4" style="width:80px;">
+        <span style="font-size:13px;color:var(--text2);" id="ev-repeat-unit">회</span>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-del" id="ev-del-btn" style="display:none;">삭제</button>
+      <button class="btn-cancel" id="ev-cancel-btn">취소</button>
+      <button class="btn-save" id="ev-save-btn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 알림 토스트 컨테이너 -->
+<div class="noti-toast-wrap" id="noti-toast-wrap"></div>
+
+<!-- 알림 보내기 모달 (원장용) -->
+<div class="noti-modal-overlay" id="noti-send-modal">
+  <div class="noti-modal">
+    <h3>🔔 알림 보내기</h3>
+    <!-- 수신자 선택 -->
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">수신자</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;" id="noti-receivers">
+        <button class="noti-recv-tag active" data-recv="전체" onclick="toggleReceiver(this)">전체</button>
+        <button class="noti-recv-tag" data-recv="혜인T" onclick="toggleReceiver(this)">혜인T</button>
+        <button class="noti-recv-tag" data-recv="하영T" onclick="toggleReceiver(this)">하영T</button>
+        <button class="noti-recv-tag" data-recv="영훈T" onclick="toggleReceiver(this)">영훈T</button>
+        <button class="noti-recv-tag" data-recv="도희T" onclick="toggleReceiver(this)">도희T</button>
+        <button class="noti-recv-tag" data-recv="지영T" onclick="toggleReceiver(this)">지영T</button>
+        <button class="noti-recv-tag" data-recv="정섭T" onclick="toggleReceiver(this)">정섭T</button>
+        <button class="noti-recv-tag" data-recv="경민T" onclick="toggleReceiver(this)">경민T</button>
+        <button class="noti-recv-tag" data-recv="정인T" onclick="toggleReceiver(this)">정인T</button>
+      </div>
+    </div>
+    <div class="noti-type-row">
+      <button class="noti-type-btn active" id="noti-type-direct" onclick="selectNotiType('direct')">📝 직접 입력</button>
+      <button class="noti-type-btn" id="noti-type-memo" onclick="selectNotiType('memo')">📋 메모장 확인</button>
+    </div>
+    <div id="noti-direct-wrap">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">보낼 공지 내용을 입력하세요</div>
+      <textarea class="noti-ta" id="noti-direct-text" placeholder="예) 오늘 오후 6시 전체 회의가 있습니다. 꼭 참석해 주세요."></textarea>
+    </div>
+    <div id="noti-memo-wrap" style="display:none;">
+      <div style="background:var(--accent-light);border-radius:10px;padding:14px;font-size:13px;color:var(--accent-dark);line-height:1.6;">
+        📋 선택한 선생님께<br><strong>"메모장을 확인해 주세요"</strong><br>알림이 전송됩니다.
+      </div>
+    </div>
+    <button class="noti-send-btn" id="noti-send-btn">📤 전송</button>
+    <button class="btn-cancel" style="width:100%;margin-top:8px;" id="noti-send-close-btn">취소</button>
+  </div>
+</div>
+
+<!-- 알림함 모달 -->
+<div class="noti-modal-overlay" id="noti-inbox-modal">
+  <div class="noti-modal" style="max-width:440px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h3 style="margin:0;" id="noti-inbox-title">🔔 알림함</h3>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-del" id="noti-delete-all-btn" style="padding:4px 10px;font-size:12px;margin:0;">전체 삭제</button>
+        <button class="btn-cancel" id="noti-inbox-close-btn" style="padding:4px 10px;">닫기</button>
+      </div>
+    </div>
+    <div id="noti-inbox-list" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;"></div>
+    <div id="noti-inbox-empty" style="text-align:center;color:var(--text3);font-size:13px;padding:2rem 0;display:none;">알림이 없습니다</div>
+  </div>
+</div>
+
+<!-- 관리 모달 -->
+<div class="modal-overlay" id="mgmt-modal">
+  <div class="modal" style="max-width:380px;">
+    <h3>⚙️ 관리</h3>
+    <div class="mgmt-tabs">
+      <button class="mgmt-tab active" id="tab-pin" onclick="switchMgmtTab('pin')">🔑 PIN 관리</button>
+      <button class="mgmt-tab" id="tab-teacher" onclick="switchMgmtTab('teacher')">👥 선생님 관리</button>
+    </div>
+    <!-- PIN 관리 탭 -->
+    <div id="mgmt-pin-section">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">변경 후 선생님께 직접 알려주세요</div>
+      <div id="pin-rows"></div>
+    </div>
+    <!-- 선생님 관리 탭 -->
+    <div id="mgmt-teacher-section" style="display:none;">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">퇴사한 선생님을 삭제하면 로그인 목록에서 제거돼요</div>
+      <div id="teacher-rows"></div>
+    </div>
+    <div class="modal-btns" style="margin-top:1rem;">
+      <button class="btn-cancel" id="mgmt-close-btn">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyC6_EjWngSf_EQuqYP7j_rkC53fZUk6UCs",
+  authDomain:"choi-math-memo-1d6e6.firebaseapp.com",
+  projectId:"choi-math-memo-1d6e6",
+  storageBucket:"choi-math-memo-1d6e6.firebasestorage.app",
+  messagingSenderId:"805131169031",
+  appId:"1:805131169031:web:ed09dc28e2ae030f9329a2"
+});
+const db = firebase.firestore();
+
+// 상태
+let currentUser = null;
+const TEACHERS = ['혜인T','하영T','영훈T','도희T','지영T','정섭T','경민T','정인T'];
+let PINS = {'원장':'1234','혜인T':'1234','하영T':'1234','영훈T':'1234','도희T':'1234','지영T':'1234','정섭T':'1234','경민T':'1234','정인T':'1234'};
+const AVATARS = {
+  '원장':{bg:'#E1F5EE',c:'#0F6E56'},
+  '혜인T':{bg:'#E6F1FB',c:'#185FA5'},
+  '하영T':{bg:'#FEF0F0',c:'#A32D2D'},
+  '영훈T':{bg:'#FDF6DC',c:'#8A6A00'},
+  '도희T':{bg:'#EDE9FE',c:'#6B46C1'},
+  '지영T':{bg:'#DCFCE7',c:'#166534'},
+  '정섭T':{bg:'#FFF7ED',c:'#C2410C'},
+  '경민T':{bg:'#FCE7F3',c:'#9D174D'},
+  '정인T':{bg:'#E0F2FE',c:'#0369A1'},
+};
+
+const now = new Date();
+let curYear=now.getFullYear(), curMonth=now.getMonth();
+let events=[], editingId=null, selectedColor='#C5705D', selectedBgColor='#FBEFEF';
+
+function ds(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+function todayDs(){return ds(now.getFullYear(),now.getMonth(),now.getDate());}
+
+// PIN 로드
+async function init(){
+  try{
+    const doc=await db.collection('settings').doc('simple_pins').get();
+    if(doc.exists){PINS=doc.data();}
+    else{await db.collection('settings').doc('simple_pins').set(PINS);}
+  }catch(e){}
+}
+init();
+
+// 로그인
+// 로그인 화면 날짜 표시
+(function(){
+  const now = new Date();
+  const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const days = ['일','월','화','수','목','금','토'];
+  const month = months[now.getMonth()];
+  const date = now.getDate();
+  const day = days[now.getDay()];
+  const el = document.getElementById('login-date-display');
+  el.innerHTML = `
+    <div style="display:inline-block;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:80px;">
+      <div style="background:#E06060;color:white;font-size:12px;font-weight:700;padding:5px 0;text-align:center;letter-spacing:1px;">${month}</div>
+      <div style="font-size:36px;font-weight:700;color:#1A1A1A;padding:4px 16px 2px;text-align:center;">${date}</div>
+      <div style="font-size:11px;color:#999;padding:0 0 6px;text-align:center;">${day}요일</div>
+    </div>`;
+})();
+
+document.getElementById('login-btn').addEventListener('click',doLogin);
+document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function doLogin(){
+  const user=document.getElementById('login-user').value;
+  const pin=document.getElementById('login-pin').value;
+  const err=document.getElementById('login-error');
+  if(!user){err.textContent='로그인 구분을 선택해 주세요.';err.style.display='block';return;}
+  if(pin!==(PINS[user]||'1234')){err.textContent='PIN 번호가 올바르지 않아요.';err.style.display='block';return;}
+  err.style.display='none';
+  applyLogin(user);
+}
+
+function applyLogin(user){
+  currentUser=user;
+  const av=AVATARS[user]||{bg:'#F1EFE8',c:'#444441'};
+  const ha=document.getElementById('header-avatar');
+  ha.textContent=user==='원장'?'원':user.charAt(0);
+  ha.style.background=av.bg;ha.style.color=av.c;
+  document.getElementById('header-username').textContent=user;
+  // 8시간 로그인 유지
+  const loginData = {user: currentUser, time: Date.now()};
+  localStorage.setItem('choi_cal_login', JSON.stringify(loginData));
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  const isOwner = user==='원장';
+  if(isOwner){
+    document.getElementById('mgmt-btn').style.display='block';
+    document.getElementById('memo-ta').contentEditable='true';
+    document.getElementById('memo-ta').style.cursor='text';
+    if(document.getElementById('memo-toolbar-wrap')) document.getElementById('memo-toolbar-wrap').style.display='flex';
+    if(document.getElementById('memo-file-input')) document.getElementById('memo-file-input').disabled=false;
+  } else {
+    document.getElementById('memo-ta').readOnly=true;
+    document.getElementById('memo-ta').placeholder='';
+    document.getElementById('memo-ta').style.cursor='default';
+    document.getElementById('memo-ta').style.background='var(--bg)';
+    if(document.getElementById('memo-toolbar-wrap')) document.getElementById('memo-toolbar-wrap').style.display='none';
+    if(document.getElementById('memo-file-input')) document.getElementById('memo-file-input').disabled=true;
+  }
+  loadMemo();
+  db.collection('calendar_events').onSnapshot(snap=>{
+    events=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderCalendar();
+  });
+  setupNotiUI();
+}
+
+// 8시간 자동 로그인 복원
+(function checkAutoLogin(){
+  try{
+    const saved = localStorage.getItem('choi_cal_login');
+    if(saved){
+      const d = JSON.parse(saved);
+      const elapsed = Date.now() - d.time;
+      if(elapsed < 8 * 60 * 60 * 1000 && d.user){
+        // PIN 로드 후 자동 로그인
+        db.collection('settings').doc('simple_pins').get().then(doc=>{
+          if(doc.exists) Object.assign(PINS, doc.data());
+          applyLogin(d.user);
+        }).catch(()=>applyLogin(d.user));
+        return;
+      }
+    }
+  }catch(e){}
+})();
+
+document.getElementById('logout-btn').addEventListener('click',()=>{
+  currentUser=null;
+  localStorage.removeItem('choi_cal_login');
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-pin').value='';
+  document.getElementById('mgmt-btn').style.display='none';
+});
+
+// 메모
+async function loadMemo(){
+  try{
+    const key=`${curYear}-${String(curMonth+1).padStart(2,'0')}`;
+    const doc=await db.collection('monthly_memo').doc(key).get();
+    const ta=document.getElementById('memo-ta');
+    if(doc.exists){
+      const d=doc.data();
+      ta.innerHTML=d.text||'';
+      currentFontSize=d.fontSize||'14px';
+      currentColor=d.color||'#1A1A1A';
+      memoFiles=d.files||[];
+      ta.style.fontSize=currentFontSize;
+      ta.style.color=currentColor;
+      document.getElementById('memo-font-size').value=currentFontSize;
+      document.querySelectorAll('.memo-color-btn').forEach(b=>{
+        b.classList.toggle('active', b.dataset.color===currentColor);
+      });
+      renderMemoFiles();
+    } else {
+      ta.innerHTML='';
+      currentFontSize='14px';
+      currentColor='#1A1A1A';
+      memoFiles=[];
+      ta.style.fontSize='14px';
+      ta.style.color='#1A1A1A';
+      renderMemoFiles();
+    }
+    document.getElementById('memo-date-label').textContent=`${curYear}년 ${curMonth+1}월 메모`;
+  }catch(e){console.log(e);}
+}
+// 메모 툴바 기능
+let memoFiles = []; // {name, type, data(base64), url}
+let currentFontSize = '14px';
+let currentColor = '#1A1A1A';
+
+// 폰트 크기 변경
+document.getElementById('memo-font-size').addEventListener('change', function(){
+  currentFontSize = this.value;
+  document.getElementById('memo-ta').style.fontSize = currentFontSize;
+});
+
+
+
+// 색상 버튼 - 선택 텍스트 있으면 선택만, 없으면 전체 색 변경
+document.querySelectorAll('.memo-color-btn').forEach(btn => {
+  btn.addEventListener('mousedown', function(e){ e.preventDefault(); }); // 선택 유지
+  btn.addEventListener('click', function(){
+    const color = this.dataset.color;
+    const sel = window.getSelection();
+    if(sel && !sel.isCollapsed){
+      // 선택된 텍스트만 색상 변경
+      document.execCommand('foreColor', false, color);
+      document.getElementById('memo-ta').dispatchEvent(new Event('input'));
+    } else {
+      // 선택 없으면 전체 색 변경
+      document.querySelectorAll('.memo-color-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentColor = color;
+      document.getElementById('memo-ta').style.color = currentColor;
+      document.getElementById('memo-ta').focus();
+    }
+  });
+});
+
+// 파일 업로드
+document.getElementById('memo-file-input').addEventListener('change', function(e){
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    if(file.size > 500 * 1024) { alert(`"${file.name}" 파일이 너무 커요. 500KB 이하만 가능해요.`); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      memoFiles.push({ name: file.name, type: file.type, data: ev.target.result });
+      renderMemoFiles();
+      saveMemo();
+    };
+    reader.readAsDataURL(file);
+  });
+  this.value = '';
+});
+
+function renderMemoFiles(){
+  const list = document.getElementById('memo-file-list');
+  if(!memoFiles.length){ list.innerHTML=''; return; }
+  list.innerHTML = memoFiles.map((f,i) => {
+    const isImg = f.type.startsWith('image/');
+    const delBtn = currentUser==='원장' ? `<button class="memo-file-del" onclick="removeMemoFile(${i})">✕</button>` : '';
+    return `<div class="memo-file-item">
+      <span class="memo-file-icon">${isImg?'🖼️':'📄'}</span>
+      <span class="memo-file-name">${f.name}</span>
+      ${isImg?`<a class="memo-file-link" href="${f.data}" target="_blank">보기</a>`:''}
+      <a class="memo-file-link" href="${f.data}" download="${f.name}">⬇</a>
+      ${delBtn}
+    </div>${isImg?`<img src="${f.data}" class="memo-img-preview" alt="${f.name}">` : ''}`;
+  }).join('');
+}
+
+window.removeMemoFile = function(i){
+  if(currentUser !== '원장'){ alert('원장만 파일을 삭제할 수 있어요.'); return; }
+  memoFiles.splice(i,1);
+  renderMemoFiles();
+  saveMemo();
+};
+
+// 메모 저장 함수
+let memoSaveTimer = null;
+async function saveMemo(){
+  const key=`${curYear}-${String(curMonth+1).padStart(2,'0')}`;
+  const ta = document.getElementById('memo-ta');
+  const memoVal = ta ? ta.innerHTML : '';
+  await db.collection('monthly_memo').doc(key).set({
+    text: memoVal,
+    fontSize: currentFontSize,
+    color: currentColor,
+    files: memoFiles,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  const s=document.getElementById('memo-saved');
+  s.textContent='✓ 저장됐어요!';
+  s.style.display='block';
+  setTimeout(()=>s.style.display='none',1500);
+}
+
+// 저장 버튼 클릭
+document.getElementById('memo-save-btn').addEventListener('click',()=>saveMemo());
+
+// 글자 입력할 때마다 자동저장 (1초 딜레이)
+document.getElementById('memo-ta').addEventListener('input',()=>{
+  const s=document.getElementById('memo-saved');
+  s.textContent='저장 중...';
+  s.style.display='block';
+  clearTimeout(memoSaveTimer);
+  memoSaveTimer=setTimeout(()=>saveMemo(),1000);
+});
+
+
+// 한국 공휴일 데이터 (2025~2027)
+const HOLIDAYS = {
+  // ─── 2025 ───
+  '2025-01-01':'신정',
+  '2025-01-28':'설날 전날',
+  '2025-01-29':'설날',
+  '2025-01-30':'설날 다음날',
+  '2025-03-01':'삼일절',
+  '2025-05-05':'어린이날·부처님오신날',
+  '2025-05-06':'대체공휴일',
+  '2025-06-03':'대통령선거일',
+  '2025-06-06':'현충일',
+  '2025-08-15':'광복절',
+  '2025-10-03':'개천절',
+  '2025-10-06':'추석 전날',
+  '2025-10-07':'추석',
+  '2025-10-08':'추석 다음날',
+  '2025-10-09':'한글날',
+  '2025-12-25':'크리스마스',
+  // ─── 2026 ───
+  '2026-01-01':'신정',
+  '2026-02-16':'설날 전날',
+  '2026-02-17':'설날',
+  '2026-02-18':'설날 다음날',
+  '2026-02-19':'대체공휴일',
+  '2026-03-01':'삼일절',
+  '2026-03-02':'대체공휴일',
+  '2026-05-01':'노동절',
+  '2026-05-05':'어린이날',
+  '2026-05-24':'부처님오신날',
+  '2026-05-25':'대체공휴일',
+  '2026-06-03':'지방선거일',
+  '2026-06-06':'현충일',
+  '2026-07-17':'제헌절',
+  '2026-08-15':'광복절',
+  '2026-08-17':'대체공휴일',
+  '2026-09-24':'추석 전날',
+  '2026-09-25':'추석',
+  '2026-09-26':'추석 다음날',
+  '2026-10-03':'개천절',
+  '2026-10-05':'대체공휴일',
+  '2026-10-09':'한글날',
+  '2026-12-25':'크리스마스',
+  // ─── 2027 ───
+  '2027-01-01':'신정',
+  '2027-02-06':'설날 전날',
+  '2027-02-07':'설날',
+  '2027-02-08':'설날 다음날',
+  '2027-03-01':'삼일절',
+  '2027-05-01':'노동절',
+  '2027-05-05':'어린이날',
+  '2027-05-14':'부처님오신날',
+  '2027-06-06':'현충일',
+  '2027-06-07':'대체공휴일',
+  '2027-07-17':'제헌절',
+  '2027-07-19':'대체공휴일',
+  '2027-08-15':'광복절',
+  '2027-08-16':'대체공휴일',
+  '2027-09-15':'추석 전날',
+  '2027-09-16':'추석',
+  '2027-09-17':'추석 다음날',
+  '2027-10-03':'개천절',
+  '2027-10-04':'대체공휴일',
+  '2027-10-09':'한글날',
+  '2027-10-11':'대체공휴일',
+  '2027-12-25':'크리스마스',
+  '2027-12-27':'대체공휴일',
+};
+
+// 캘린더 렌더
+function renderCalendar(){
+  const months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('cal-title').textContent=`${curYear}년 ${months[curMonth]}`;
+  const firstDay=new Date(curYear,curMonth,1).getDay();
+  const daysInMonth=new Date(curYear,curMonth+1,0).getDate();
+  const daysInPrev=new Date(curYear,curMonth,0).getDate();
+  const totalCells=Math.ceil((firstDay+daysInMonth)/7)*7;
+  const numWeeks=totalCells/7;
+  const isOwner=currentUser==='원장';
+  const body=document.getElementById('cal-body');
+
+  // 전체 셀 날짜 계산
+  const cellDates=[];
+  for(let i=0;i<totalCells;i++){
+    let day,isOther=false,y=curYear,m=curMonth;
+    if(i<firstDay){day=daysInPrev-firstDay+i+1;isOther=true;m=curMonth-1;if(m<0){m=11;y=curYear-1;}}
+    else if(i>=firstDay+daysInMonth){day=i-firstDay-daysInMonth+1;isOther=true;m=curMonth+1;if(m>11){m=0;y=curYear+1;}}
+    else{day=i-firstDay+1;}
+    cellDates.push({ds:ds(y,m,day),isOther,day});
+  }
+
+  // 이벤트 길이순 정렬 (긴 것 먼저)
+  const sortedEvents=[...events].sort((a,b)=>{
+    const aLen=(new Date(a.endDate||a.startDate||a.date)-new Date(a.startDate||a.date))/(86400000);
+    const bLen=(new Date(b.endDate||b.startDate||b.date)-new Date(b.startDate||b.date))/(86400000);
+    return bLen-aLen;
+  });
+
+  body.innerHTML='';
+
+  for(let w=0;w<numWeeks;w++){
+    const weekDates=cellDates.slice(w*7,(w+1)*7);
+    const weekStart=weekDates[0].ds;
+    const weekEnd=weekDates[6].ds;
+
+    const weekEl=document.createElement('div');
+    weekEl.className='cal-week';
+
+    // 날짜 셀 생성
+    weekDates.forEach((cd,di)=>{
+      const isToday=cd.ds===todayDs();
+      const holiday=HOLIDAYS[cd.ds];
+      let cls='cal-cell';
+      if(cd.isOther)cls+=' other-month';
+      if(isToday)cls+=' today';
+      if(holiday&&!cd.isOther)cls+=' holiday-cell';
+      const plusBtn=(!cd.isOther&&isOwner)?`<button class="plus-btn" data-date="${cd.ds}">+</button>`:'';
+      const holidayTag=(!cd.isOther&&holiday)?`<div class="holiday-tag">${holiday}</div>`:'';
+      const dayColor=(holiday&&!cd.isOther&&!isToday)?'color:#E06060!important;':'';
+      weekEl.innerHTML+=`<div class="${cls}" data-date="${cd.ds}"><div class="day-num" style="${dayColor}">${cd.day}</div>${plusBtn}${holidayTag}</div>`;
+    });
+
+    // 이벤트 바 레이어
+    const layer=document.createElement('div');
+    layer.className='week-events';
+
+    // 슬롯 배치
+    const slots=[];
+    const weekEvts=sortedEvents.filter(e=>{
+      const es=e.startDate||e.date, ee=e.endDate||es;
+      return es<=weekEnd&&ee>=weekStart;
+    });
+
+    weekEvts.forEach(e=>{
+      const es=e.startDate||e.date, ee=e.endDate||es;
+      const clampStart=es<weekStart?weekStart:es;
+      const clampEnd=ee>weekEnd?weekEnd:ee;
+      const startCol=weekDates.findIndex(d=>d.ds===clampStart);
+      const endCol=weekDates.findIndex(d=>d.ds===clampEnd);
+      if(startCol<0||endCol<0) return;
+      let slot=0;
+      while(true){
+        if(!slots[slot])slots[slot]=[];
+        const conflict=slots[slot].some(s=>!(s.endCol<startCol||s.startCol>endCol));
+        if(!conflict){slots[slot].push({startCol,endCol,e});break;}
+        slot++;
+      }
+    });
+
+    const cellW=100/7;
+    slots.forEach((slotItems,slotIdx)=>{
+      if(!slotItems)return;
+      slotItems.forEach(({startCol,endCol,e})=>{
+        const isStart=(e.startDate||e.date)===weekDates[startCol].ds;
+        const label=(e.time&&isStart?e.time+' ':'')+e.title;
+        const bar=document.createElement('div');
+        bar.className='ev-bar';
+        bar.dataset.evid=e.id;
+        bar.style.left=`calc(${startCol*cellW}% + 2px)`;
+        bar.style.width=`calc(${(endCol-startCol+1)*cellW}% - 4px)`;
+        bar.style.top=`${slotIdx*22}px`;
+        bar.style.background=e.bgColor||e.color+'22';
+        bar.style.color=e.color;
+        bar.style.borderLeft=`3px solid ${e.color}`;
+        bar.textContent=label;
+        bar.title=e.title+(e.memo?' - '+e.memo:'');
+        if(isOwner)bar.draggable=true;
+        layer.appendChild(bar);
+      });
+    });
+
+    // 셀 최소 높이 조정
+    const minH=Math.max(110,30+slots.length*22+8);
+    weekEl.querySelectorAll('.cal-cell').forEach(c=>c.style.minHeight=minH+'px');
+    weekEl.style.minHeight=minH+'px';
+
+    weekEl.appendChild(layer);
+    body.appendChild(weekEl);
+  }
+  // 이벤트 바인딩
+  body.querySelectorAll('.plus-btn').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();openAddModal(btn.dataset.date);});
+  });
+  body.querySelectorAll('.ev-bar').forEach(bar=>{
+    bar.addEventListener('click',e=>{e.stopPropagation();const ev=events.find(ev=>ev.id===bar.dataset.evid);if(ev)showEvPopup(ev,bar);});
+    if(currentUser==='원장'){
+      bar.addEventListener('dragstart',e=>{
+        e.dataTransfer.setData('evid',bar.dataset.evid);
+        bar.classList.add('dragging');
+        e.stopPropagation();
+      });
+      bar.addEventListener('dragend',e=>{
+        bar.classList.remove('dragging');
+        document.querySelectorAll('.cal-cell').forEach(c=>c.classList.remove('drag-over'));
+      });
+    }
+  });
+
+  // 셀 드롭 이벤트
+  body.querySelectorAll('.cal-cell').forEach(cell=>{
+    cell.addEventListener('dragover',e=>{
+      e.preventDefault();
+      cell.classList.add('drag-over');
+    });
+    cell.addEventListener('dragleave',e=>{
+      cell.classList.remove('drag-over');
+    });
+    cell.addEventListener('drop',e=>{
+      e.preventDefault();
+      cell.classList.remove('drag-over');
+      const evid = e.dataTransfer.getData('evid');
+      const newDate = cell.dataset.date;
+      if(!evid||!newDate) return;
+      const ev = events.find(ev=>ev.id===evid);
+      if(!ev) return;
+      const oldStart = ev.startDate||ev.date;
+      const oldEnd = ev.endDate||oldStart;
+      // 기간 계산해서 새 날짜에 맞게 이동
+      const diffDays = (new Date(oldEnd)-new Date(oldStart))/(1000*60*60*24);
+      const newStart = newDate;
+      const newEndDate = new Date(newDate);
+      newEndDate.setDate(newEndDate.getDate()+diffDays);
+      const newEnd = newEndDate.toISOString().split('T')[0];
+      db.collection('calendar_events').doc(evid).update({
+        startDate: newStart, endDate: newEnd, date: newStart
+      });
+    });
+  });
+}
+
+// 이벤트 팝업
+let currentPopupEvId=null;
+function showEvPopup(ev,el){
+  currentPopupEvId=ev.id;
+  document.getElementById('ev-popup-dot').style.background=ev.color;
+  document.getElementById('ev-popup-title').textContent=ev.title;
+  const es=ev.startDate||ev.date,ee=ev.endDate||es;
+  let meta=es===ee?es:`${es} ~ ${ee}`;
+  if(ev.time)meta=ev.time+' · '+meta;
+  if(ev.memo)meta+='\n'+ev.memo;
+  document.getElementById('ev-popup-meta').textContent=meta;
+  const actions=document.getElementById('ev-popup-actions');
+  if(currentUser==='원장'){
+    actions.innerHTML=`<button class="ev-popup-edit-btn">수정</button><button class="ev-popup-del-btn">삭제</button>`;
+    actions.querySelector('.ev-popup-edit-btn').onclick=()=>{closePopup();openEditModal(ev.id);};
+    actions.querySelector('.ev-popup-del-btn').onclick=()=>{closePopup();deleteEvent(ev);};
+  }else{actions.innerHTML='';}
+  const rect=el.getBoundingClientRect();
+  const popup=document.getElementById('ev-popup');
+  popup.style.top=Math.min(rect.bottom+8,window.innerHeight-200)+'px';
+  popup.style.left=Math.min(rect.left,window.innerWidth-290)+'px';
+  popup.classList.add('open');
+}
+function closePopup(){document.getElementById('ev-popup').classList.remove('open');}
+
+async function deleteEvent(ev){
+  if(ev.repeatGroupId){
+    // 반복 일정 - 선택 옵션
+    const choice = confirm(
+      '반복 일정입니다.\n\n확인 = 반복 일정 전체 삭제\n취소 = 이 일정만 삭제'
+    );
+    if(choice){
+      // 전체 삭제
+      if(!confirm('반복 일정 전체를 삭제할까요?')) return;
+      const snap = await db.collection('calendar_events')
+        .where('repeatGroupId','==',ev.repeatGroupId).get();
+      const batch = db.batch();
+      snap.docs.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    } else {
+      // 이 일정만 삭제
+      if(!confirm('이 일정만 삭제할까요?')) return;
+      db.collection('calendar_events').doc(ev.id).delete();
+    }
+  } else {
+    // 일반 일정
+    if(!confirm('이 일정을 삭제할까요?')) return;
+    db.collection('calendar_events').doc(ev.id).delete();
+  }
+}
+document.getElementById('ev-popup-close').addEventListener('click',closePopup);
+document.addEventListener('click',e=>{
+  const popup=document.getElementById('ev-popup');
+  if(popup.classList.contains('open')&&!popup.contains(e.target))closePopup();
+});
+
+// 일정 모달
+function openAddModal(dateStr){
+  editingId=null;
+  document.getElementById('ev-modal-title').textContent='일정 추가';
+  document.getElementById('ev-title').value='';
+  document.getElementById('ev-start').value=dateStr;
+  document.getElementById('ev-end').value=dateStr;
+  document.getElementById('ev-time').value='';
+  document.getElementById('ev-memo').value='';
+  document.getElementById('ev-del-btn').style.display='none';
+  document.querySelectorAll('.color-opt').forEach(o=>o.classList.remove('selected'));
+  const firstOpt=document.querySelector('.color-opt');
+  if(firstOpt)firstOpt.classList.add('selected');
+  selectedColor='#C5705D';
+  selectedBgColor='#FBEFEF';
+  document.getElementById('ev-repeat').value='none';
+  document.getElementById('ev-repeat-count-field').style.display='none';
+  document.getElementById('ev-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('ev-title').focus(),100);
+}
+function openEditModal(id){
+  const ev=events.find(e=>e.id===id);if(!ev)return;
+  editingId=id;
+  document.getElementById('ev-modal-title').textContent='일정 수정';
+  document.getElementById('ev-title').value=ev.title;
+  document.getElementById('ev-start').value=ev.startDate||ev.date;
+  document.getElementById('ev-end').value=ev.endDate||ev.startDate||ev.date;
+  document.getElementById('ev-time').value=ev.time||'';
+  document.getElementById('ev-memo').value=ev.memo||'';
+  document.getElementById('ev-del-btn').style.display='block';
+  document.querySelectorAll('.color-opt').forEach(o=>o.classList.remove('selected'));
+  // 색상 선택 - data-color로 찾기
+  document.querySelectorAll('.color-opt').forEach(o=>{
+    if(o.dataset.color===ev.color){o.classList.add('selected');}
+  });
+  selectedColor=ev.color;
+  selectedBgColor=ev.bgColor||ev.color+'22';
+  document.getElementById('ev-modal').classList.add('open');
+}
+document.getElementById('ev-cancel-btn').addEventListener('click',()=>document.getElementById('ev-modal').classList.remove('open'));
+
+// 반복 설정 변경 시 횟수 필드 표시
+document.getElementById('ev-repeat').addEventListener('change',function(){
+  try{
+    const field=document.getElementById('ev-repeat-count-field');
+    const unit=document.getElementById('ev-repeat-unit');
+    if(this.value==='none'){field.style.display='none';}
+    else{
+      field.style.display='block';
+      if(this.value==='week'){unit.textContent='주 반복';document.getElementById('ev-repeat-count').value=260;document.getElementById('ev-repeat-count').max=520;}
+      else if(this.value==='month'){unit.textContent='개월 반복';document.getElementById('ev-repeat-count').value=60;document.getElementById('ev-repeat-count').max=120;}
+      else if(this.value==='last-friday'){unit.textContent='개월 반복';document.getElementById('ev-repeat-count').value=60;document.getElementById('ev-repeat-count').max=120;}
+      else if(this.value==='year'){unit.textContent='년 반복';document.getElementById('ev-repeat-count').value=5;document.getElementById('ev-repeat-count').max=10;}
+    }
+  }catch(e){console.log(e);}
+});
+document.getElementById('ev-modal').addEventListener('click',e=>{if(e.target===document.getElementById('ev-modal'))document.getElementById('ev-modal').classList.remove('open');});
+
+// 해당 월의 마지막 주 금요일 날짜 반환
+function getLastFridayOfMonth(year, month){
+  const lastDay = new Date(year, month+1, 0); // 해당 월 마지막 날
+  const dayOfWeek = lastDay.getDay(); // 0=일,1=월,...,5=금,6=토
+  const diff = (dayOfWeek >= 5) ? dayOfWeek - 5 : dayOfWeek + 2;
+  lastDay.setDate(lastDay.getDate() - diff);
+  return lastDay;
+}
+
+document.getElementById('ev-save-btn').addEventListener('click',async()=>{
+  const title=document.getElementById('ev-title').value.trim();
+  if(!title){alert('제목을 입력해 주세요.');return;}
+  const startDate=document.getElementById('ev-start').value;
+  const endDate=document.getElementById('ev-end').value||startDate;
+  if(!startDate){alert('날짜를 선택해 주세요.');return;}
+  if(endDate<startDate){alert('종료일이 시작일보다 빠를 수 없어요.');return;}
+  const repeat=document.getElementById('ev-repeat').value;
+  // 반복 횟수 - 숨겨진 필드여도 값 읽기, 기본값은 반복 유형별로 설정
+  let repeatCount = parseInt(document.getElementById('ev-repeat-count').value);
+  if(!repeatCount || repeatCount < 1){
+    if(repeat==='week') repeatCount=260;
+    else if(repeat==='month') repeatCount=60;
+    else if(repeat==='last-friday') repeatCount=60;
+    else if(repeat==='year') repeatCount=5;
+    else repeatCount=1;
+  }
+
+  const baseData={title,time:document.getElementById('ev-time').value,memo:document.getElementById('ev-memo').value,color:selectedColor,bgColor:selectedBgColor};
+
+  if(editingId){
+    document.getElementById('ev-modal').classList.remove('open');
+    const ev = events.find(e=>e.id===editingId);
+    if(ev && ev.repeatGroupId){
+      const choice = confirm('반복 일정입니다.\n\n확인 → 반복 일정 전체에 변경 적용\n취소 → 이 일정만 변경');
+      if(choice){
+        // 전체 반복 일정에 적용 (JS 필터링 방식)
+        const snap = await db.collection('calendar_events').get();
+        const grouped = snap.docs.filter(d=>d.data().repeatGroupId===ev.repeatGroupId);
+        const batch = db.batch();
+        grouped.forEach(d=>batch.update(d.ref,{
+          title:baseData.title,
+          time:baseData.time,
+          memo:baseData.memo,
+          color:baseData.color,
+          bgColor:baseData.bgColor,
+          updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+        }));
+        await batch.commit();
+      } else {
+        db.collection('calendar_events').doc(editingId).update({...baseData,startDate,endDate,date:startDate,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+      }
+    } else {
+      db.collection('calendar_events').doc(editingId).update({...baseData,startDate,endDate,date:startDate,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    }
+  } else {
+    const eventsToCreate=[];
+
+    if(repeat==='last-friday'){
+      // 마지막 주 금요일 반복
+      const repeatGroupId = Date.now().toString();
+      let baseDate = new Date(startDate+'T12:00:00');
+      const totalCount = repeatCount+1;
+      for(let i=0;i<totalCount;i++){
+        const friday = getLastFridayOfMonth(baseDate.getFullYear(), baseDate.getMonth()+i);
+        const s=`${friday.getFullYear()}-${String(friday.getMonth()+1).padStart(2,'0')}-${String(friday.getDate()).padStart(2,'0')}`;
+        eventsToCreate.push({...baseData,startDate:s,endDate:s,date:s,repeatGroupId,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      }
+    } else {
+      const repeatGroupId = repeat!=='none' ? Date.now().toString() : null;
+      const duration=(new Date(endDate)-new Date(startDate))/(86400000);
+      let curStart=new Date(startDate+'T12:00:00');
+      const totalCount = repeat==='none'?1:repeatCount+1;
+      for(let i=0;i<totalCount;i++){
+        const s=`${curStart.getFullYear()}-${String(curStart.getMonth()+1).padStart(2,'0')}-${String(curStart.getDate()).padStart(2,'0')}`;
+        const eDate=new Date(curStart);
+        eDate.setDate(eDate.getDate()+duration);
+        const e=`${eDate.getFullYear()}-${String(eDate.getMonth()+1).padStart(2,'0')}-${String(eDate.getDate()).padStart(2,'0')}`;
+        const ev={...baseData,startDate:s,endDate:e,date:s,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+        if(repeatGroupId) ev.repeatGroupId=repeatGroupId;
+        eventsToCreate.push(ev);
+        if(repeat==='week') curStart.setDate(curStart.getDate()+7);
+        else if(repeat==='month') curStart.setMonth(curStart.getMonth()+1);
+        else if(repeat==='year') curStart.setFullYear(curStart.getFullYear()+1);
+        else break;
+      }
+    }
+
+    // 모달 먼저 닫기
+    document.getElementById('ev-modal').classList.remove('open');
+
+    for(const ev of eventsToCreate){
+      await db.collection('calendar_events').add(ev);
+    }
+  }
+});
+document.getElementById('ev-del-btn').addEventListener('click',async()=>{
+  const ev = events.find(e=>e.id===editingId);
+  if(!ev) return;
+
+  if(ev.repeatGroupId){
+    const fromHere = confirm(
+      '반복 일정 삭제 방법을 선택하세요.\n\n' +
+      '확인 → 이 일정 포함 이후 일정 모두 삭제\n' +
+      '취소 → 전체 반복 일정 삭제'
+    );
+    document.getElementById('ev-modal').classList.remove('open');
+
+    // 전체 가져와서 JS에서 필터링
+    const snap = await db.collection('calendar_events').get();
+    const grouped = snap.docs.filter(d=>d.data().repeatGroupId===ev.repeatGroupId);
+
+    alert(`반복 그룹 ID: ${ev.repeatGroupId}\n찾은 반복 일정 수: ${grouped.length}개`);
+
+    if(fromHere){
+      const thisDate = ev.startDate || ev.date || '';
+      const batch = db.batch();
+      grouped.forEach(d=>{
+        const dDate = d.data().startDate || d.data().date || '';
+        if(dDate >= thisDate) batch.delete(d.ref);
+      });
+      await batch.commit();
+    } else {
+      const batch = db.batch();
+      grouped.forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+    }
+  } else {
+    if(!confirm('이 일정을 삭제할까요?')) return;
+    document.getElementById('ev-modal').classList.remove('open');
+    await db.collection('calendar_events').doc(editingId).delete();
+  }
+});
+document.querySelectorAll('.color-opt').forEach(opt=>{
+  opt.addEventListener('click',function(){
+    document.querySelectorAll('.color-opt').forEach(o=>o.classList.remove('selected'));
+    this.classList.add('selected');
+    selectedColor=this.dataset.color;
+    selectedBgColor=this.dataset.bg||this.dataset.color+'22';
+  });
+});
+
+// 네비
+document.getElementById('prev-btn').addEventListener('click',()=>{curMonth--;if(curMonth<0){curMonth=11;curYear--;}renderCalendar();loadMemo();});
+document.getElementById('next-btn').addEventListener('click',()=>{curMonth++;if(curMonth>11){curMonth=0;curYear++;}renderCalendar();loadMemo();});
+document.getElementById('today-btn').addEventListener('click',()=>{curYear=now.getFullYear();curMonth=now.getMonth();renderCalendar();loadMemo();});
+
+// ========== 알림 기능 ==========
+let notiType = 'direct';
+let selectedReceivers = ['전체'];
+let notiUnsubscribe = null;
+
+function toggleReceiver(btn){
+  const recv = btn.dataset.recv;
+  if(recv==='전체'){
+    selectedReceivers=['전체'];
+    document.querySelectorAll('.noti-recv-tag').forEach(b=>{
+      b.classList.toggle('active', b.dataset.recv==='전체');
+    });
+    return;
+  }
+  const allBtn = document.querySelector('.noti-recv-tag[data-recv="전체"]');
+  allBtn.classList.remove('active');
+  selectedReceivers = selectedReceivers.filter(r=>r!=='전체');
+  if(btn.classList.contains('active')){
+    btn.classList.remove('active');
+    selectedReceivers = selectedReceivers.filter(r=>r!==recv);
+    if(selectedReceivers.length===0){selectedReceivers=['전체'];allBtn.classList.add('active');}
+  } else {
+    btn.classList.add('active');
+    selectedReceivers.push(recv);
+  }
+}
+
+function selectNotiType(type){
+  notiType = type;
+  document.getElementById('noti-type-direct').classList.toggle('active', type==='direct');
+  document.getElementById('noti-type-memo').classList.toggle('active', type==='memo');
+  document.getElementById('noti-direct-wrap').style.display = type==='direct'?'block':'none';
+  document.getElementById('noti-memo-wrap').style.display = type==='memo'?'block':'none';
+}
+
+document.getElementById('noti-send-open-btn').addEventListener('click',()=>{
+  document.getElementById('noti-send-modal').classList.add('open');
+});
+document.getElementById('noti-send-close-btn').addEventListener('click',()=>{
+  document.getElementById('noti-send-modal').classList.remove('open');
+});
+
+document.getElementById('noti-send-btn').addEventListener('click', async()=>{
+  let title, body;
+  if(notiType==='direct'){
+    const text = document.getElementById('noti-direct-text').value.trim();
+    if(!text){alert('공지 내용을 입력해 주세요.');return;}
+    title = '📢 원장 공지';
+    body = text;
+  } else {
+    title = '📋 메모장 확인 요청';
+    body = '메모장을 확인해 주세요.';
+  }
+  const receivers = selectedReceivers.includes('전체') ? ['전체'] : [...selectedReceivers];
+  try{
+    await db.collection('notifications').add({
+      title, body, sender:'원장', receivers,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      ts: Date.now()
+    });
+    document.getElementById('noti-send-modal').classList.remove('open');
+    document.getElementById('noti-direct-text').value='';
+    showNotiToast(title, body, true);
+  }catch(e){alert('전송 실패: '+e.message);}
+});
+
+document.getElementById('noti-inbox-open-btn').addEventListener('click', async()=>{
+  document.getElementById('noti-inbox-modal').classList.add('open');
+  loadNotiInbox();
+  // 읽음 처리: Firebase readBy에 추가
+  if(currentUser!=='원장'){
+    try{
+      const snap = await db.collection('notifications').orderBy('ts','desc').limit(30).get();
+      const batch = db.batch();
+      snap.docs.forEach(d=>{
+        const data = d.data();
+        const isForMe = !data.receivers||data.receivers.includes('전체')||data.receivers.includes(currentUser);
+        const alreadyRead = (data.readBy||[]).includes(currentUser);
+        if(isForMe && !alreadyRead){
+          batch.update(d.ref, {readBy: firebase.firestore.FieldValue.arrayUnion(currentUser)});
+        }
+      });
+      await batch.commit();
+    }catch(e){}
+  }
+  document.getElementById('noti-badge').style.display='none';
+  document.getElementById('noti-inbox-open-btn').classList.remove('noti-ringing');
+  document.title='최선생수학학원 — 학원 캘린더';
+});
+document.getElementById('noti-inbox-close-btn').addEventListener('click',()=>{
+  document.getElementById('noti-inbox-modal').classList.remove('open');
+});
+
+// 전체 삭제
+document.getElementById('noti-delete-all-btn').addEventListener('click', async()=>{
+  if(!confirm('알림을 전체 삭제할까요?')) return;
+  try{
+    const isOwner = currentUser==='원장';
+    const snap = await db.collection('notifications').orderBy('ts','desc').limit(50).get();
+    let docs = snap.docs.filter(d=>{
+      const data=d.data();
+      return !data.receivers||data.receivers.includes('전체')||data.receivers.includes(currentUser);
+    });
+    const batch = db.batch();
+    if(isOwner){
+      // 원장: 실제 삭제
+      docs.forEach(d=>batch.delete(d.ref));
+    } else {
+      // 선생님: 본인 deletedBy에만 추가
+      docs.forEach(d=>{
+        const alreadyDeleted=(d.data().deletedBy||[]).includes(currentUser);
+        if(!alreadyDeleted){
+          batch.update(d.ref,{deletedBy:firebase.firestore.FieldValue.arrayUnion(currentUser)});
+        }
+      });
+    }
+    await batch.commit();
+    document.getElementById('noti-inbox-list').innerHTML='';
+    document.getElementById('noti-inbox-empty').style.display='block';
+  }catch(e){alert('삭제 실패: '+e.message);}
+});
+
+async function loadNotiInbox(){
+  const list = document.getElementById('noti-inbox-list');
+  const empty = document.getElementById('noti-inbox-empty');
+  list.innerHTML='<div style="text-align:center;color:var(--text3);font-size:12px;padding:1rem;">로딩 중...</div>';
+  try{
+    const isOwner = currentUser==='원장';
+    const snap = await db.collection('notifications').orderBy('ts','desc').limit(50).get();
+    let docs = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!isOwner){
+      docs = docs.filter(d=>!d.receivers||d.receivers.includes('전체')||d.receivers.includes(currentUser));
+    }
+    // 본인이 삭제한 알림 필터
+    if(!isOwner) docs = docs.filter(d=>!(d.deletedBy||[]).includes(currentUser));
+    if(docs.length===0){list.innerHTML='';empty.style.display='block';return;}
+    empty.style.display='none';
+    list.innerHTML = docs.map(d=>{
+      const isUnread = !(d.readBy||[]).includes(currentUser) && !isOwner;
+      const timeStr = d.createdAt?.toDate ? formatTime(d.createdAt.toDate()) : '방금';
+      const recvStr = isOwner ? `→ ${d.receivers?.join(', ')||'전체'}` : '';
+      return `<div class="noti-item ${isUnread?'unread':''}" id="noti-item-${d.id}">
+        <button class="noti-item-del" onclick="deleteNoti('${d.id}')">×</button>
+        <div class="noti-item-header">
+          <div class="noti-item-title">${d.title}</div>
+          <div class="noti-item-time">${timeStr}</div>
+        </div>
+        <div class="noti-item-body">${d.body}</div>
+        ${recvStr?`<div class="noti-item-meta">${recvStr}</div>`:''}
+      </div>`;
+    }).join('');
+  }catch(e){list.innerHTML='<div style="color:#A32D2D;font-size:12px;">로딩 실패</div>';}
+}
+
+function formatTime(date){
+  const now=new Date();
+  const diff=Math.floor((now-date)/1000);
+  if(diff<60) return '방금';
+  if(diff<3600) return `${Math.floor(diff/60)}분 전`;
+  if(diff<86400) return `${Math.floor(diff/3600)}시간 전`;
+  return `${date.getMonth()+1}/${date.getDate()}`;
+}
+
+async function deleteNoti(id){
+  if(!confirm('이 알림을 삭제할까요?')) return;
+  // 원장은 실제 삭제, 선생님은 본인 deletedBy에 추가
+  if(currentUser==='원장'){
+    await db.collection('notifications').doc(id).delete();
+  } else {
+    await db.collection('notifications').doc(id).update({
+      deletedBy: firebase.firestore.FieldValue.arrayUnion(currentUser)
+    });
+  }
+  document.getElementById('noti-item-'+id)?.remove();
+  const list=document.getElementById('noti-inbox-list');
+  if(list.children.length===0) document.getElementById('noti-inbox-empty').style.display='block';
+}
+
+function startNotiListener(){
+  if(notiUnsubscribe) notiUnsubscribe();
+  notiUnsubscribe = db.collection('notifications').orderBy('ts','desc').limit(30)
+    .onSnapshot(snap=>{
+      snap.docChanges().forEach(change=>{
+        if(change.type==='added' || change.type==='modified'){
+          const d=change.doc.data();
+          const isForMe=!d.receivers||d.receivers.includes('전체')||d.receivers.includes(currentUser);
+          const isDeleted=(d.deletedBy||[]).includes(currentUser);
+          const isRead=(d.readBy||[]).includes(currentUser);
+          if(currentUser!=='원장' && isForMe && !isDeleted){
+            if(!isRead && change.type==='added'){
+              showNotiToast(d.title, d.body, false);
+            }
+          }
+        }
+      });
+      if(currentUser!=='원장'){
+        const c=parseInt(localStorage.getItem('choi_noti_checked')||'0');
+        const unread=snap.docs.filter(doc=>{
+          const d=doc.data();
+          const isForMe=!d.receivers||d.receivers.includes('전체')||d.receivers.includes(currentUser);
+          const isDeleted=(d.deletedBy||[]).includes(currentUser);
+          const isRead=(d.readBy||[]).includes(currentUser);
+          return isForMe && !isDeleted && !isRead;
+        }).length;
+        const badge=document.getElementById('noti-badge');
+        const inboxBtn=document.getElementById('noti-inbox-open-btn');
+        if(unread>0){
+          badge.style.display='inline-block';
+          badge.textContent=unread;
+          inboxBtn.classList.add('noti-ringing');
+          document.title=`🔔 최선생 캘린더`;
+        } else {
+          badge.style.display='none';
+          inboxBtn.classList.remove('noti-ringing');
+          document.title='최선생수학학원 — 학원 캘린더';
+        }
+      }
+    });
+}
+
+function showNotiToast(title, body, isSender){
+  const wrap=document.getElementById('noti-toast-wrap');
+  const toast=document.createElement('div');
+  toast.className='noti-toast';
+  toast.style.cursor='pointer';
+  toast.innerHTML=`
+    <div class="noti-toast-icon">${isSender?'✅':'🔔'}</div>
+    <div class="noti-toast-body">
+      <div class="noti-toast-app">최선생수학학원 · 지금 (탭하면 알림함 열림)</div>
+      <div class="noti-toast-title">${title}</div>
+      <div class="noti-toast-msg">${body}</div>
+    </div>`;
+  // 클릭하면 알림함 열기
+  toast.addEventListener('click',()=>{
+    toast.remove();
+    document.getElementById('noti-inbox-modal').classList.add('open');
+    loadNotiInbox();
+    localStorage.setItem('choi_noti_checked', Date.now().toString());
+    document.getElementById('noti-badge').style.display='none';
+    document.getElementById('noti-inbox-open-btn').classList.remove('noti-ringing');
+    document.title='최선생수학학원 — 학원 캘린더';
+  });
+  wrap.appendChild(toast);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>toast.classList.add('show')));
+  setTimeout(()=>{toast.classList.remove('show');toast.classList.add('hide');setTimeout(()=>toast.remove(),400);},5000);
+  if(!isSender&&Notification.permission==='granted') new Notification(title,{body});
+}
+
+function setupNotiUI(){
+  const isOwner=currentUser==='원장';
+  document.getElementById('noti-send-open-btn').style.display=isOwner?'block':'none';
+  document.getElementById('noti-inbox-open-btn').style.display='block';
+  document.getElementById('noti-inbox-title').textContent=isOwner?'📤 보낸 알림':'🔔 받은 알림함';
+  startNotiListener();
+}
+
+// 관리 모달
+// 인쇄 버튼
+document.getElementById('print-btn').addEventListener('click',()=>{
+  const months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('print-header').textContent =
+    `최선생수학학원 — ${curYear}년 ${months[curMonth]} 캘린더`;
+  document.getElementById('print-header').style.display = 'block';
+  window.print();
+  document.getElementById('print-header').style.display = 'none';
+});
+
+document.getElementById('mgmt-btn').addEventListener('click',()=>{
+  switchMgmtTab('pin');
+  renderPinManager();
+  document.getElementById('mgmt-modal').classList.add('open');
+});
+document.getElementById('mgmt-close-btn').addEventListener('click',()=>document.getElementById('mgmt-modal').classList.remove('open'));
+document.getElementById('mgmt-modal').addEventListener('click',e=>{if(e.target===document.getElementById('mgmt-modal'))document.getElementById('mgmt-modal').classList.remove('open');});
+
+function switchMgmtTab(tab){
+  document.getElementById('tab-pin').classList.toggle('active', tab==='pin');
+  document.getElementById('tab-teacher').classList.toggle('active', tab==='teacher');
+  document.getElementById('mgmt-pin-section').style.display = tab==='pin'?'block':'none';
+  document.getElementById('mgmt-teacher-section').style.display = tab==='teacher'?'block':'none';
+  if(tab==='teacher') renderTeacherManager();
+  if(tab==='pin') renderPinManager();
+}
+
+// 선생님 관리
+function renderTeacherManager(){
+  const container = document.getElementById('teacher-rows');
+  container.innerHTML = TEACHERS.map(t=>`
+    <div class="teacher-row" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--bg);margin-bottom:6px;">
+      <div class="teacher-av" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:${AVATARS[t]?.bg||'#eee'};color:${AVATARS[t]?.c||'#333'};">${t.charAt(0)}</div>
+      <span style="flex:1;font-size:13px;font-weight:500;">${t}</span>
+      <button onclick="deleteTeacher('${t}')" style="background:#FEF0F0;color:#D04040;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;">삭제</button>
+    </div>`).join('');
+  if(TEACHERS.length===0){
+    container.innerHTML='<div style="text-align:center;color:var(--text3);font-size:13px;padding:1rem;">선생님이 없습니다</div>';
+  }
+}
+
+async function deleteTeacher(name){
+  if(!confirm(`${name}을(를) 삭제할까요?\n로그인 목록에서 제거되고 PIN도 삭제됩니다.`)) return;
+  const idx = TEACHERS.indexOf(name);
+  if(idx>-1) TEACHERS.splice(idx,1);
+  delete PINS[name];
+  await db.collection('settings').doc('simple_pins').set(PINS);
+  // 로그인 select에서도 제거
+  const select = document.getElementById('login-user');
+  Array.from(select.options).forEach(opt=>{
+    if(opt.value===name) select.removeChild(opt);
+  });
+  renderTeacherManager();
+  renderPinManager();
+  alert(`${name} 삭제 완료!`);
+}
+
+// PIN 관리 (선생님 개별 포함)
+function renderPinManager(){
+  const container=document.getElementById('pin-rows');
+  const users=['원장',...TEACHERS];
+  container.innerHTML=users.map(u=>`
+    <div class="pin-row" style="margin-bottom:12px;">
+      <span class="pin-name" style="font-size:13px;font-weight:500;">${u}</span>
+      <input class="pin-input" type="text" maxlength="4" inputmode="numeric" value="${PINS[u]||'1234'}" data-user="${u}" placeholder="1234">
+      <button class="pin-save-btn" data-user="${u}">저장</button>
+    </div>`).join('');
+  container.querySelectorAll('.pin-save-btn').forEach(btn=>{
+    btn.addEventListener('click',async function(){
+      const user=this.dataset.user;
+      const input=container.querySelector(`.pin-input[data-user="${user}"]`);
+      const newPin=input.value.trim();
+      if(newPin.length!==4||!/^\d+$/.test(newPin)){alert('4자리 숫자로 입력해 주세요.');return;}
+      PINS[user]=newPin;
+      await db.collection('settings').doc('simple_pins').set(PINS);
+      alert(`${user} PIN이 변경됐어요!`);
+    });
+  });
+}
+</script>
+</body>
+</html>
