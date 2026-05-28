@@ -170,7 +170,8 @@ textarea{resize:vertical;min-height:64px}
 .iframe-wrap{width:100%;height:calc(100vh - 180px);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow)}
 .iframe-wrap iframe{width:100%;height:100%;border:none}
 
-.money-input{width:100%;border:none;background:transparent;text-align:right;font-size:11px;font-family:inherit;color:#065F46;font-weight:700;outline:none;padding:0}
+.money-input{width:100%;border:1.5px solid #A7F3D0;background:#fff;border-radius:6px;text-align:right;font-size:11px;font-family:inherit;color:#065F46;font-weight:700;outline:none;padding:4px 6px;transition:border .15s}
+.money-input:focus{border-color:#059669;box-shadow:0 0 0 2px rgba(5,150,105,.1)}
 .money-input::placeholder{color:#B0CBB8}
 
 ::-webkit-scrollbar{width:5px;height:5px}
@@ -685,8 +686,9 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
     </div>
     <!-- 강사별 연간 보수 -->
     <div class="card">
-      <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div class="card-title" style="margin:0">강사별 연간 보수</div>
+        <button onclick="clearSalData()" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--red);background:#fff;color:var(--red);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🗑 데이터 초기화</button>
       </div>
       <div style="overflow-x:auto">
         <table class="sal-table" id="t3TcTb" style="min-width:700px">
@@ -720,48 +722,8 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
 <div class="panel" id="t6">
   <div id="sc-root">
 
-<!-- 로그인 화면 -->
-<div id="sc-login-screen" style="display: none;">
-  <div class="login-card">
-    <div class="login-logo">
-      <span class="login-logo-icon">📊</span>
-      <h1>최선생수학학원</h1>
-      <p>성적 관리 시스템</p>
-    </div>
-    <label class="lbl">로그인 구분</label>
-    <select class="login-select" id="sc-login-user">
-      <option value="">-- 선택하세요 --</option>
-      <option value="원장">원장</option>
-      <option value="혜인T">혜인T</option>
-      <option value="하영T">하영T</option>
-      <option value="영훈T">영훈T</option>
-      <option value="도희T">도희T</option>
-      <option value="지영T">지영T</option>
-      <option value="정섭T">정섭T</option>
-      <option value="경민T">경민T</option>
-      <option value="정인T">정인T</option>
-    </select>
-    <label class="lbl">PIN 번호 (4자리)</label>
-    <input class="login-pin" type="password" id="sc-login-pin" maxlength="4" placeholder="••••" inputmode="numeric">
-    <button class="login-btn" id="sc-login-btn">로그인</button>
-    <div class="login-error" id="sc-login-error" style="display: none;"></div>
-  </div>
-</div>
-
 <!-- 앱 메인 -->
 <div id="sc-app" style="display: flex; flex-direction: column;">
-
-  <!-- 헤더 -->
-  <div class="app-header">
-    <div class="header-logo">📊 최선생 성적관리 <span id="header-role-label">원장</span></div>
-    <div class="header-user">
-      <div class="header-avatar" id="header-avatar" style="background: rgb(225, 245, 238); color: rgb(15, 110, 86);">원</div>
-      <span style="font-size:13px;opacity:.85;" id="header-username">원장</span>
-      <button class="hdr-btn" id="admin-btn" style="" onclick="showAdminPanel()">⚙️ 관리</button>
-      <button class="hdr-btn" onclick="downloadHtml()" title="HTML 파일 다운로드">⬇ HTML</button>
-      <button class="hdr-btn" id="logout-btn">로그아웃</button>
-    </div>
-  </div>
 
   <!-- 원장 화면 -->
   <div id="page-admin" class="page app-content active">
@@ -6514,8 +6476,9 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
 
   </div>
 
-  </div>
-</div>
+  </div><!-- /sc-app -->
+  </div><!-- /sc-root -->
+</div><!-- /t6 panel -->
 
 <!-- ══ T7 핀 관리 ══ -->
 <div class="panel" id="t7">
@@ -6550,14 +6513,14 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
 <script>
 // ── 상수
 let PIN = localStorage.getItem('dash_pin') || '1234';
-const TC = ['혜인T','하영T','영훈T','도희T','지영T','정섭T','경민T','정인T','부원장'];
+const TC = ['혜인T','하영T','영훈T','도희T','지영T','정섭T','경민T','정인T'];
 const MO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 const GD = {elem:['초1','초2','초3','초4','초5','초6'],mid:['중1','중2','중3'],high:['고1','고2','고3']};
 const GC = {elem:{bg:'#FEF9C3',tc:'#92400E',bc:'#EAB308'},mid:{bg:'#EDE9FE',tc:'#5B21B6',bc:'#7C3AED'},high:{bg:'#E0E7FF',tc:'#3730A3',bc:'#4338CA'}};
 
 // 카테고리 (비정기지출 제거, 학원용품/인테리어/기타/삭제 추가)
 // 내부이체/공과금/생활비는 카테고리에 없음 - 별도 처리
-const CATS = ['강사보수','지입기사','임차료','4대보험/세금','교육콘텐츠','운영고정비','식비','세금','네이버페이','학원용품','인테리어','기타','삭제'];
+const CATS = ['강사보수','지입기사','임차료','4대보험/세금','교육콘텐츠','운영고정비','식비','네이버페이','학원용품','인테리어','카드','생활비','용돈','노란우산','기타','삭제'];
 // 내부이체로 분류될 키워드
 const INTERNAL_KW = ['모으는기업','개인기업','신한공과금','공과금','생활비','농협이체','최미선'];
 const KW_MAP = {
@@ -6565,16 +6528,16 @@ const KW_MAP = {
   '지입실장':'지입기사','이봉희':'지입기사','조광수':'지입기사',
   '월세':'임차료','관리비':'임차료',
   '매쓰홀릭':'교육콘텐츠','대교에듀':'교육콘텐츠','내신코치':'교육콘텐츠','sugi':'교육콘텐츠',
-  '국민연금':'4대보험/세금','국민건강':'4대보험/세금','노란우산':'4대보험/세금',
-  'KT통신':'운영고정비','SK인텔릭스':'운영고정비','신도정보':'운영고정비','피플택스':'세금','올댓페이':'운영고정비','세스코':'운영고정비',
+  '국민연금':'4대보험/세금','국민건강':'4대보험/세금','노란우산':'노란우산',
+  'KT통신':'운영고정비','SK인텔릭스':'운영고정비','신도정보':'운영고정비','피플택스':'기타','올댓페이':'운영고정비','세스코':'운영고정비',
   '식사비':'식비','굿푸드':'식비','한솥':'식비',
-  '지방세':'세금','국세':'세금',
+  '지방세':'기타','국세':'기타',
   '네이버페이':'네이버페이',
   '인테리어':'인테리어','빔프로젝트':'인테리어',
   '학원용품':'학원용품','매트':'학원용품','홀더':'학원용품','색연필':'학원용품',
 };
-const CAT_BG = {'강사보수':'#DBEAFE','지입기사':'#FFF1F2','임차료':'#FEF3C7','4대보험/세금':'#FFE4E6','교육콘텐츠':'#D1FAE5','운영고정비':'#EDE9FE','식비':'#FEF9C3','세금':'#FFE4E6','네이버페이':'#E0F2FE','학원용품':'#F0FDF4','인테리어':'#FEF3C7','기타':'#F9FAFB','삭제':'#FEF2F2'};
-const CAT_TC = {'강사보수':'#1E40AF','지입기사':'#9B1C1C','임차료':'#92400E','4대보험/세금':'#9B1C1C','교육콘텐츠':'#065F46','운영고정비':'#5B21B6','식비':'#78350F','세금':'#9B1C1C','네이버페이':'#0C4A6E','학원용품':'#064E3B','인테리어':'#92400E','기타':'#6B7280','삭제':'#991B1B'};
+const CAT_BG = {'강사보수':'#DBEAFE','지입기사':'#FFF1F2','임차료':'#FEF3C7','4대보험/세금':'#FFE4E6','교육콘텐츠':'#D1FAE5','운영고정비':'#EDE9FE','식비':'#FEF9C3','네이버페이':'#E0F2FE','학원용품':'#F0FDF4','인테리어':'#FEF3C7','카드':'#FCE7F3','생활비':'#FDF4FF','용돈':'#ECFDF5','노란우산':'#FEFCE8','기타':'#F9FAFB','삭제':'#FEF2F2'};
+const CAT_TC = {'강사보수':'#1E40AF','지입기사':'#9B1C1C','임차료':'#92400E','4대보험/세금':'#9B1C1C','교육콘텐츠':'#065F46','운영고정비':'#5B21B6','식비':'#78350F','네이버페이':'#0C4A6E','학원용품':'#064E3B','인테리어':'#92400E','카드':'#9D174D','생활비':'#6B21A8','용돈':'#065F46','노란우산':'#854D0E','기타':'#6B7280','삭제':'#991B1B'};
 
 // ── 유틸
 const fmt = n => Math.round(Number(n)||0).toLocaleString('ko-KR');
@@ -7184,6 +7147,13 @@ function rT3Tc(){
   </tr>`;
 }
 
+function clearSalData(){
+  if(!confirm('강사 보수 데이터를 모두 초기화할까요?\n이 작업은 되돌릴 수 없습니다.')) return;
+  setSal({});
+  rT3();
+  alert('✅ 초기화 완료!');
+}
+
 // ══ T7 핀 관리 ══
 let pinVisible=false;
 function togglePin(){pinVisible=!pinVisible;if($('curPinView'))$('curPinView').textContent=pinVisible?PIN:'****';if($('pinToggleBtn'))$('pinToggleBtn').textContent=pinVisible?'숨기기':'보기';}
@@ -7224,35 +7194,17 @@ function initScorePanel(){
     }
   }catch(e){ scDb = firebase.app().firestore(); }
 
-  // 로그인 화면 표시
-  const loginEl = document.getElementById('sc-login-screen');
-  const appEl = document.getElementById('sc-app');
-  const saved = sessionStorage.getItem('score_last_user');
-  if(saved){
-    loadPins().then(()=>{ applyLogin(saved); });
-  } else {
-    if(loginEl) loginEl.style.display='flex';
-    if(appEl) appEl.style.display='none';
-  }
-
-  // 이벤트 등록 (중복 방지)
-  ['sc-login-btn','sc-login-pin'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el&&!el._scListener){
-      if(id==='sc-login-btn') el.addEventListener('click',doLogin);
-      else el.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-      el._scListener=true;
-    }
-  });
   const sf=document.getElementById('subject-filter');
   if(sf&&!sf._scListener){
     sf.addEventListener('change',function(){currentSubjectFilter=this.value;renderAdminTableFull();});
     sf._scListener=true;
   }
 
-  loadPins();
   loadScoreForm();
   scInitialized=true;
+
+  // 대시보드 로그인 = 원장, 바로 진입
+  applyLogin('원장');
 }
 
 
@@ -7311,31 +7263,13 @@ async function loadPins(){
 
 
 
-function doLogin(){
-  const user = document.getElementById('sc-login-user').value;
-  const pin = document.getElementById('sc-login-pin').value;
-  const err = document.getElementById('sc-login-error');
-  if(!user){ err.textContent='로그인 구분을 선택해 주세요.'; err.style.display='block'; return; }
-  if(pin !== (PINS[user]||'1234')){ err.textContent='PIN 번호가 올바르지 않아요.'; err.style.display='block'; return; }
-  err.style.display='none';
-  applyLogin(user);
-}
+// doLogin 제거 - 대시보드 로그인으로 통합됨
 
 function applyLogin(user){
   currentUser = user;
   isAdmin = (user === '원장');
-  sessionStorage.setItem('score_last_user', user);
-  const av = AVATARS[user]||{bg:'#EEE',c:'#333'};
-  const ha = document.getElementById('header-avatar');
-  ha.textContent = user.charAt(0);
-  ha.style.background = av.bg;
-  ha.style.color = av.c;
-  document.getElementById('header-username').textContent = user;
-  document.getElementById('header-role-label').textContent = isAdmin ? '원장' : '선생님';
-  document.getElementById('admin-btn').style.display = isAdmin ? '' : 'none';
-  document.getElementById('sc-login-screen').style.display = 'none';
-  document.getElementById('sc-app').style.display = 'flex';
-
+  const appEl = document.getElementById('sc-app');
+  if(appEl) appEl.style.display = 'flex';
   if(isAdmin){
     document.getElementById('page-admin').classList.add('active');
     document.getElementById('page-teacher').classList.remove('active');
@@ -7346,15 +7280,6 @@ function applyLogin(user){
     loadData().then(()=>{ buildTeacherClassTabs(); renderTeacherTable(); renderMyStudentList(); });
   }
 }
-
-document.getElementById('logout-btn').addEventListener('click',()=>{
-  currentUser=null; isAdmin=false;
-  sessionStorage.removeItem('score_last_user');
-  document.getElementById('sc-login-screen').style.display='flex';
-  document.getElementById('sc-app').style.display='none';
-  document.getElementById('sc-login-pin').value='';
-  document.getElementById('sc-login-error').style.display='none';
-});
 
 // ──────────────────────────────────────────
 // 업로드 파일 삭제
