@@ -858,7 +858,7 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
           <button class="exam-tab" onclick="selectExam(2,this)">2학기 중간</button>
           <button class="exam-tab" onclick="selectExam(3,this)">2학기 기말</button>
         </div>
-        <span id="last-upload-filenames-exam" style="font-size:11px;color:#1D4ED8;font-weight:600;display:none;flex-wrap:wrap;gap:4px;"></span>
+        <span id="last-upload-filenames-exam" style="font-size:11px;color:#1D4ED8;font-weight:600;display:none;flex-wrap:wrap;gap:6px;align-items:center;margin-top:2px;"></span>
       </div>
     </div>
 
@@ -7252,9 +7252,6 @@ function initScorePanel(){
   scInitialized=true;
 }
 
-    renderAdminTableFull();
-  });
-}
 
 </script>
 <script>
@@ -7264,7 +7261,6 @@ function initScorePanel(){
 // ──────────────────────────────────────────
 let currentUser = null;
 let isAdmin = false;
-let db = null;
 let currentExam = 0; // 0=1중, 1=1기, 2=2중, 3=2기
 let currentGrade = '전체';
 let currentSubjectFilter = '전체';
@@ -7418,8 +7414,10 @@ async function deleteUploadFile(fileName){
       const data = histDoc.data();
       const byExam = data.byExam || {};
       byExam[examKey] = (byExam[examKey] || []).filter(n=>n!==fileName);
+      // fileNames fallback도 같이 정리
+      const allFileNames = (data.fileNames || []).filter(n=>n!==fileName);
       await scDb.collection('settings').doc('score_upload_history').set(
-        {byExam, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
+        {byExam, fileNames: allFileNames, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
         {merge:true}
       );
       showUploadFileNames(byExam[examKey]);
@@ -7440,14 +7438,22 @@ async function deleteUploadFile(fileName){
 function showUploadFileNames(fileNames){
   const el = document.getElementById('last-upload-filenames-exam');
   if(!el) return;
-  if(!fileNames || fileNames.length === 0){ el.style.display='none'; el.innerHTML=''; return; }
+  if(!fileNames || fileNames.length === 0){
+    el.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
   el.style.display = 'flex';
+  el.style.flexWrap = 'wrap';
+  el.style.gap = '6px';
+  el.style.alignItems = 'center';
   el.innerHTML = fileNames.map(name=>`
-    <span style="display:inline-flex;align-items:center;gap:4px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:3px 8px;font-size:11px;color:#1D4ED8;font-weight:600;">
-      📁 ${name}
-      <button onclick="deleteUploadFile('${name.replace(/'/g,"\\'")}')"
+    <span style="display:inline-flex;align-items:center;gap:5px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:20px;padding:4px 10px 4px 8px;font-size:11px;color:#1D4ED8;font-weight:600;max-width:260px;">
+      <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;" title="${name}">📁 ${name}</span>
+      <button onclick="deleteUploadFile('${name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"
         title="이 파일 삭제"
-        style="border:none;background:none;color:#EF4444;cursor:pointer;font-size:13px;font-weight:700;padding:0 2px;line-height:1;">🗑️</button>
+        style="border:none;background:none;color:#94A3B8;cursor:pointer;font-size:14px;font-weight:700;padding:0;line-height:1;flex-shrink:0;transition:color .15s;"
+        onmouseover="this.style.color='#EF4444'" onmouseout="this.style.color='#94A3B8'">✕</button>
     </span>
   `).join('');
 }
@@ -7495,14 +7501,14 @@ async function loadData(){
           const data = histDoc.data();
           const byExam = data.byExam || {};
           const key = ['exam_1mid','exam_1fin','exam_2mid','exam_2fin'][currentExam];
-          // byExam에 없으면 fileNames 전체 배열 fallback (1학기 중간에만)
           const names = (byExam[key] && byExam[key].length > 0)
             ? byExam[key]
-            : (key==='exam_1mid' ? (data.fileNames||[]) : []);
-          console.log('📁 파일명 로드:', names, 'byExam:', byExam[key], 'fileNames:', data.fileNames);
+            : (data.fileNames && data.fileNames.length > 0 ? data.fileNames : []);
           showUploadFileNames(names);
+        } else {
+          showUploadFileNames([]);
         }
-      }catch(e){ console.error('파일명 로드 오류', e); }
+      }catch(e){ console.error('파일명 로드 오류', e); showUploadFileNames([]); }
     }
      // 드롭박스 동기화
   }catch(e){ console.error('loadData error:', e); }
@@ -7925,6 +7931,11 @@ async function confirmScoreUpload(){
           {byExam: existing, fileNames: merged, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
           {merge: true}
         );
+        // 저장한 시험 탭으로 이동 후 파일명 표시
+        currentExam = scoreUploadExam;
+        document.querySelectorAll('.exam-tab').forEach((b,i)=>{
+          b.classList.toggle('active', i%4 === currentExam);
+        });
         showUploadFileNames(merged);
       }catch(e){ console.error('파일명 저장 오류',e); showUploadFileNames(fileNames); }
     }
@@ -8556,12 +8567,12 @@ async function loadExamFileNames(examIdx){
       const byExam = data.byExam || {};
       const names = (byExam[key] && byExam[key].length > 0)
         ? byExam[key]
-        : (key==='exam_1mid' ? (data.fileNames||[]) : []);
+        : (data.fileNames && data.fileNames.length > 0 ? data.fileNames : []);
       showUploadFileNames(names);
     } else {
       showUploadFileNames([]);
     }
-  }catch(e){ console.error('파일명 로드 오류',e); }
+  }catch(e){ console.error('파일명 로드 오류',e); showUploadFileNames([]); }
 }
 
 
@@ -10177,9 +10188,6 @@ function downloadHtml(){
 document.getElementById('card-modal').addEventListener('click', function(e){
   if(e.target === this) closeCardModal();
 });
-
-</script>
-
 
 </script>
 </body>
