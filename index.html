@@ -655,61 +655,48 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
 
 <!-- ══ T3 강사 보수 ══ -->
 <div class="panel" id="t3">
-  <div class="row">
-    <div class="col-form">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div class="card-title" style="margin:0">보수 입력</div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <!-- 강사 보수 테이블 -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="card-title" style="margin:0">강사 보수</div>
           <select id="t3m" onchange="rT3()" style="width:80px;margin:0"></select>
         </div>
-        <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 12px;margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:#1E40AF;margin-bottom:6px">🔗 거래내역 자동 불러오기</div>
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-            <span style="font-size:11px;color:var(--text2)">기준일:</span>
-            <input type="number" id="salCutDay" value="8" min="1" max="28" style="width:50px;margin:0;font-size:11px;padding:3px 6px" oninput="localStorage.setItem('sal_cut_day',this.value)">
-            <span style="font-size:11px;color:var(--text3)">일 이전 지급 → 전월 보수</span>
-          </div>
-          <button class="btn-p" style="width:100%;font-size:11px;padding:6px" onclick="autoImportSal()">📥 거래내역에서 자동 불러오기</button>
-          <div id="autoImportMsg" style="font-size:11px;margin-top:6px;text-align:center"></div>
-        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--navy)">합계: <span id="t3tot">0원</span></span>
       </div>
+      <table class="sal-table">
+        <thead><tr>
+          <th style="text-align:left">강사</th>
+          <th>기본급</th>
+          <th>용역비 공제 (3.3%)</th>
+          <th>실지급</th>
+        </tr></thead>
+        <tbody id="t3tb"></tbody>
+      </table>
     </div>
-    <div class="col-main" style="display:flex;flex-direction:column;gap:12px">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div class="card-title" style="margin:0">강사 보수</div>
-          <span style="font-size:12px;font-weight:700;color:var(--navy)">합계: <span id="t3tot">0원</span></span>
-        </div>
-        <table class="sal-table">
-          <thead><tr>
-            <th style="text-align:left">강사</th>
-            <th>기본급 (거래내역)</th>
-            <th>용역비 공제 (3.3%)</th>
-            <th>실지급</th>
-          </tr></thead>
-          <tbody id="t3tb"></tbody>
-        </table>
+    <!-- 월별 총 보수 차트 -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="card-title" style="margin:0">월별 총 보수</div>
+        <div style="font-size:11px;color:var(--text3)">연간: <span id="t3totYr" style="font-weight:700;color:var(--navy)">0원</span></div>
       </div>
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div class="card-title" style="margin:0">월별 총 보수</div>
-          <div style="font-size:11px;color:var(--text3)">연간: <span id="t3totYr" style="font-weight:700;color:var(--navy)">0원</span></div>
-        </div>
-        <div class="bc" id="t3ch" style="height:95px"></div>
+      <div class="bc" id="t3ch" style="height:95px"></div>
+    </div>
+    <!-- 강사별 연간 보수 -->
+    <div class="card">
+      <div style="margin-bottom:12px">
+        <div class="card-title" style="margin:0">강사별 연간 보수</div>
       </div>
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div class="card-title" style="margin:0">강사별 연간 보수</div>
-          <select id="t3TcSel" onchange="rT3Tc()" style="width:90px;margin:0"></select>
-        </div>
-        <table class="sal-table" id="t3TcTb">
-          <thead><tr><th>월</th><th>기본급</th><th>용역비(3.3%)</th><th>실지급</th></tr></thead>
+      <div style="overflow-x:auto">
+        <table class="sal-table" id="t3TcTb" style="min-width:700px">
+          <thead id="t3TcHead"></thead>
           <tbody id="t3TcBody"></tbody>
         </table>
-        <div style="margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:6px;display:flex;justify-content:space-between;font-size:11px">
-          <span style="color:var(--text2)">연간 합계</span>
-          <span style="font-weight:800;color:var(--navy)" id="t3TcYrTot">—</span>
-        </div>
+      </div>
+      <div style="margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:6px;display:flex;justify-content:space-between;font-size:11px">
+        <span style="color:var(--text2)">연간 합계</span>
+        <span style="font-weight:800;color:var(--navy)" id="t3TcYrTot">—</span>
       </div>
     </div>
   </div>
@@ -718,14 +705,14 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
 <!-- ══ T4 메모장 ══ -->
 <div class="panel" id="t4">
   <div class="iframe-wrap">
-    <iframe src="/memo.html" title="최선생 메모장"></iframe>
+    <iframe src="https://chic-kulfi-0275a1.netlify.app" title="최선생 메모장"></iframe>
   </div>
 </div>
 
 <!-- ══ T5 캘린더 ══ -->
 <div class="panel" id="t5">
   <div class="iframe-wrap">
-    <iframe src="/calendar.html" title="최선생 캘린더"></iframe>
+    <iframe src="https://celadon-syrniki-010841.netlify.app" title="최선생 캘린더"></iframe>
   </div>
 </div>
 
@@ -7100,85 +7087,101 @@ function getSal(){return ld('sal_'+curYr,{});}
 function setSal(d){sv('sal_'+curYr,d);fbSet('dashboard_data',curYr+'_sal',{data:d,updatedAt:Date.now()});}
 
 function initT3(){
-  const cutDay=localStorage.getItem('sal_cut_day')||'8';
-  if($('salCutDay'))$('salCutDay').value=cutDay;
-  const t3TcSel=$('t3TcSel');
-  if(t3TcSel){t3TcSel.innerHTML=TC.map(t=>`<option value="${t}">${t}</option>`).join('');}
-  rT3();rT3Tc();
+  rT3(); rT3Tc();
 }
 
 function rT3(){
-  const m=+$('t3m').value;
-  const sal=getSal();
-  let total=0;
-  $('t3tb').innerHTML=TC.map(t=>{
-    const key=m+'-'+t;
-    const base=(sal[key]&&sal[key].base)||0;
-    const deduct=Math.round(base*0.033);
-    const net=base-deduct;
-    total+=base;
-    return`<tr>
-      <td>${t}</td>
-      <td>${base?fmt(base)+'원':'—'}</td>
-      <td style="color:var(--red)">${base?fmt(deduct)+'원':'—'}</td>
-      <td style="font-weight:700;color:var(--navy)">${base?fmt(net)+'원':'—'}</td>
+  const m = +$('t3m').value;
+  const sal = getSal();
+  let total = 0;
+  $('t3tb').innerHTML = TC.map(t=>{
+    const key = m+'-'+t;
+    const base = (sal[key] && sal[key].base) || 0;
+    const deduct = Math.round(base * 0.033);
+    const net = base - deduct;
+    total += base;
+    return `<tr>
+      <td style="font-weight:600">${t}</td>
+      <td><input type="text" inputmode="numeric"
+        style="width:110px;text-align:right;border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;background:#fff"
+        value="${base ? base.toLocaleString('ko-KR') : ''}"
+        placeholder="0"
+        onchange="saveSalBase(${m},'${t}',this.value)"
+        onfocus="this.select()"></td>
+      <td style="color:var(--red)">${base ? fmt(deduct)+'원' : '—'}</td>
+      <td style="font-weight:700;color:var(--navy)">${base ? fmt(net)+'원' : '—'}</td>
     </tr>`;
   }).join('');
-  $('t3tot').textContent=total?fmt(total)+'원':'0원';
+  $('t3tot').textContent = total ? fmt(total)+'원' : '0원';
 
-  // 연간 합계
-  let yrTotal=0;
-  const yrData=MO.map((_,i)=>{const mi=i+1;let mTotal=0;TC.forEach(t=>{const k=mi+'-'+t;const b=(sal[k]&&sal[k].base)||0;mTotal+=b;});yrTotal+=mTotal;return mTotal;});
-  $('t3totYr').textContent=yrTotal?fmt(yrTotal)+'원':'0원';
+  // 연간 기본급 합계
+  let yrTotal = 0;
+  const yrData = MO.map((_,i)=>{
+    const mi = i+1; let mTotal = 0;
+    TC.forEach(t=>{ const k=mi+'-'+t; const b=(sal[k]&&sal[k].base)||0; mTotal+=b; });
+    yrTotal += mTotal; return mTotal;
+  });
+  $('t3totYr').textContent = yrTotal ? fmt(yrTotal)+'원' : '0원';
 
-  // 차트
-  const mx=Math.max(...yrData,1);
-  $('t3ch').innerHTML=MO.map((mo,i)=>{const v=yrData[i];const h=v?Math.max(v/mx*80,8):0;
-    return`<div class="bg"><div style="height:85px;display:flex;align-items:flex-end">${v?`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><span style="font-size:8px;font-weight:700;color:var(--navy);margin-bottom:1px">${(v/10000).toFixed(0)}</span><div style="width:14px;height:${h}px;background:var(--navy);border-radius:2px 2px 0 0;opacity:0.8"></div></div>`:''}</div><span class="bl ${i+1===m?'hi':''}">${i+1}</span></div>`;
+  // 차트 (기본급 기준)
+  const mx = Math.max(...yrData, 1);
+  $('t3ch').innerHTML = MO.map((mo,i)=>{
+    const v = yrData[i]; const h = v ? Math.max(v/mx*80, 8) : 0;
+    return `<div class="bg">
+      <div style="height:85px;display:flex;align-items:flex-end">
+        ${v ? `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+          <span style="font-size:8px;font-weight:700;color:var(--navy);margin-bottom:1px">${(v/10000).toFixed(0)}</span>
+          <div style="width:14px;height:${h}px;background:var(--navy);border-radius:2px 2px 0 0;opacity:0.8"></div>
+        </div>` : ''}
+      </div>
+      <span class="bl ${i+1===m?'hi':''}">${i+1}</span>
+    </div>`;
   }).join('');
+
+  rT3Tc();
+}
+
+function saveSalBase(m, teacher, rawVal){
+  const num = parseInt(String(rawVal).replace(/,/g,'')) || 0;
+  const sal = getSal();
+  const key = m+'-'+teacher;
+  sal[key] = { base: num };
+  setSal(sal);
+  rT3();
 }
 
 function rT3Tc(){
-  const tc=$('t3TcSel')?$('t3TcSel').value:TC[0];
-  const sal=getSal();
-  let yrTotal=0;
-  $('t3TcBody').innerHTML=MO.map((_,i)=>{const mi=i+1;const key=mi+'-'+tc;const base=(sal[key]&&sal[key].base)||0;const deduct=Math.round(base*0.033);const net=base-deduct;yrTotal+=net;
-    return`<tr><td>${MO[i]}</td><td>${base?fmt(base)+'원':'—'}</td><td style="color:var(--red)">${base?fmt(deduct)+'원':'—'}</td><td style="font-weight:700;color:var(--navy)">${base?fmt(net)+'원':'—'}</td></tr>`;
-  }).join('');
-  $('t3TcYrTot').textContent=yrTotal?fmt(yrTotal)+'원':'—';
-}
+  const sal = getSal();
+  // 헤더: 월 | 혜인T | 하영T | ... (기본급)
+  $('t3TcHead').innerHTML = `<tr>
+    <th style="text-align:left;white-space:nowrap">월</th>
+    ${TC.map(t=>`<th style="white-space:nowrap">${t}<br><span style="font-size:9px;font-weight:400;opacity:.7">기본급</span></th>`).join('')}
+  </tr>`;
 
-function autoImportSal(){
-  const msg=$('autoImportMsg');
-  if(!t2ExpRows||!t2ExpRows.length){msg.style.color='var(--red)';msg.textContent='먼저 거래내역을 업로드해주세요';setTimeout(()=>msg.textContent='',3000);return;}
-  const salRows=t2ExpRows.filter(r=>r.cat==='강사보수');
-  if(!salRows.length){msg.style.color='var(--red)';msg.textContent='강사보수로 분류된 항목이 없습니다';setTimeout(()=>msg.textContent='',3000);return;}
-  const cutDay=parseInt(localStorage.getItem('sal_cut_day')||'8');
-  const sal=getSal();
-  const autoKeys=new Set();
-  salRows.forEach(r=>{
-    const teacher=TC.find(t=>r.desc.includes(t)||r.desc.includes(t.replace('T','')));
-    if(!teacher)return;
-    const date=new Date(r.date);
-    const day=date.getDate(),month=date.getMonth()+1;
-    const targetMonth=day<=cutDay?(month===1?12:month-1):month;
-    autoKeys.add(targetMonth+'-'+teacher);
-  });
-  autoKeys.forEach(k=>{sal[k]={base:0};});
-  let count=0;
-  salRows.forEach(r=>{
-    const teacher=TC.find(t=>r.desc.includes(t)||r.desc.includes(t.replace('T','')));
-    if(!teacher)return;
-    const date=new Date(r.date);
-    const day=date.getDate(),month=date.getMonth()+1;
-    const targetMonth=day<=cutDay?(month===1?12:month-1):month;
-    const key=targetMonth+'-'+teacher;
-    sal[key]={base:(sal[key].base||0)+r.amt};
-    count++;
-  });
-  setSal(sal);
-  msg.style.color='var(--green)';msg.textContent=`✓ ${count}건 입력 완료`;setTimeout(()=>msg.textContent='',3000);
-  rT3();
+  let colTotals = TC.map(()=>0);
+  let grandTotal = 0;
+
+  $('t3TcBody').innerHTML = MO.map((_,i)=>{
+    const mi = i+1;
+    const cells = TC.map((t,ti)=>{
+      const key = mi+'-'+t;
+      const base = (sal[key]&&sal[key].base)||0;
+      colTotals[ti] += base;
+      grandTotal += base;
+      return `<td style="text-align:right">${base ? fmt(base)+'원' : '—'}</td>`;
+    }).join('');
+    return `<tr><td style="font-weight:600;white-space:nowrap">${MO[i]}</td>${cells}</tr>`;
+  }).join('');
+
+  // 합계 행
+  const totCells = colTotals.map(v=>`<td style="text-align:right;font-weight:700;color:var(--navy)">${v ? fmt(v)+'원' : '—'}</td>`).join('');
+  $('t3TcYrTot').textContent = grandTotal ? fmt(grandTotal)+'원' : '—';
+
+  // 합계 행을 tbody 마지막에 추가
+  const existingRows = $('t3TcBody').innerHTML;
+  $('t3TcBody').innerHTML = existingRows + `<tr style="background:#F0F4FF;border-top:2px solid var(--navy)">
+    <td style="font-weight:700;color:var(--navy)">합계</td>${totCells}
+  </tr>`;
 }
 
 // ══ T7 핀 관리 ══
