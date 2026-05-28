@@ -37,7 +37,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .hdr-logo{width:36px;height:36px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#fff;flex-shrink:0}
 .hdr-name{font-size:14px;font-weight:700;color:#fff}
 .hdr-sub{font-size:10px;color:#8CA0BB;margin-top:1px}
-.hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px;flex-shrink:0;white-space:nowrap}
 .yr-sel{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 10px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer;outline:none}
 .yr-sel option{background:var(--navy)}
 .fb-dot{width:7px;height:7px;border-radius:50%;background:#6B7280}
@@ -445,7 +445,7 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
     </select>
     <div class="fb-dot" id="fbDot"></div>
     <span class="fb-label" id="fbLbl">연결 중</span>
-    <button onclick="doLogout()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit">로그아웃</button>
+    <button onclick="doLogout()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap">로그아웃</button>
   </div>
 </header>
 
@@ -619,11 +619,18 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
 
   <!-- 지출 테이블 -->
   <div class="card" id="t2ExpCard" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
       <div class="card-title" style="margin:0">📋 지출 내역 <span id="t2ExpCardLabel" style="font-size:11px;font-weight:500;color:var(--text3)"></span></div>
-      <div style="display:flex;gap:6px">
-        <button onclick="t2FilterAll()" class="btn-o" style="padding:3px 10px;font-size:11px">전체</button>
-        <button onclick="t2FilterUncls()" class="btn-o" style="padding:3px 10px;font-size:11px;border-color:#F59E0B;color:#92400E">미분류만</button>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap">
+        <select id="t2ExpMonthSel" onchange="renderT2Table(getT2Rows())" style="border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;font-family:inherit;background:#fff;cursor:pointer;color:var(--text1)">
+          <option value="0">전체 월</option>
+          <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
+          <option value="4">4월</option><option value="5">5월</option><option value="6">6월</option>
+          <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
+          <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+        </select>
+        <button onclick="t2FilterAll()" class="btn-o" style="padding:3px 10px;font-size:11px;white-space:nowrap">전체</button>
+        <button onclick="t2FilterUncls()" class="btn-o" style="padding:3px 10px;font-size:11px;border-color:#F59E0B;color:#92400E;white-space:nowrap">미분류만</button>
       </div>
     </div>
     <div style="overflow-x:auto;max-height:360px;overflow-y:auto">
@@ -6513,7 +6520,7 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
 <script>
 // ── 상수
 let PIN = localStorage.getItem('dash_pin') || '1234';
-const TC = ['혜인T','하영T','영훈T','도희T','지영T','정섭T','경민T','정인T'];
+const TC = ['혜인T','하영T','영훈T','도희T','지영T','정섭T','경민T','정인T','부원장'];
 const MO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 const GD = {elem:['초1','초2','초3','초4','초5','초6'],mid:['중1','중2','중3'],high:['고1','고2','고3']};
 const GC = {elem:{bg:'#FEF9C3',tc:'#92400E',bc:'#EAB308'},mid:{bg:'#EDE9FE',tc:'#5B21B6',bc:'#7C3AED'},high:{bg:'#E0E7FF',tc:'#3730A3',bc:'#4338CA'}};
@@ -6522,7 +6529,7 @@ const GC = {elem:{bg:'#FEF9C3',tc:'#92400E',bc:'#EAB308'},mid:{bg:'#EDE9FE',tc:'
 // 내부이체/공과금/생활비는 카테고리에 없음 - 별도 처리
 const CATS = ['강사보수','지입기사','임차료','4대보험/세금','교육콘텐츠','운영고정비','식비','네이버페이','학원용품','인테리어','카드','생활비','용돈','노란우산','기타','삭제'];
 // 내부이체로 분류될 키워드
-const INTERNAL_KW = ['모으는기업','개인기업','신한공과금','공과금','생활비','농협이체','최미선'];
+const INTERNAL_KW = ['모으는기업','개인기업','신한공과금','농협이체','최미선'];
 const KW_MAP = {
   '용역비':'강사보수','보수':'강사보수','주차비':'지입기사',
   '지입실장':'지입기사','이봉희':'지입기사','조광수':'지입기사',
@@ -6854,6 +6861,7 @@ async function initT2(){
   await loadT2ExpRows();
   await loadT2RevData();
   await loadCatMapping();
+  renderFileList(); // 업로드 파일명 복원
   renderT2();
 }
 
@@ -6934,7 +6942,11 @@ function renderT2(){
 
 function renderT2Table(rows){
   const filter=window._t2Filter||'all';
-  const showing=(filter==='uncls'?rows.filter(r=>!r.cat):rows).filter(r=>r.cat!=='삭제');
+  const selMonth = parseInt($('t2ExpMonthSel')?$('t2ExpMonthSel').value||'0':'0');
+  let showing = (filter==='uncls'?rows.filter(r=>!r.cat):rows).filter(r=>r.cat!=='삭제');
+  if(selMonth>0) showing = showing.filter(r=>r.month===selMonth);
+  // 건수 업데이트
+  if($('t2ExpCardLabel')) $('t2ExpCardLabel').textContent=`(${showing.length}건${selMonth>0?' · '+selMonth+'월':''})`;
   $('t2ExpTbody').innerHTML=showing.map(r=>{
     const unc=!r.cat;
     const isInt=r.cat==='__internal__';
@@ -7029,12 +7041,17 @@ function renderFileList(){
   const el=$('fileList');if(!el)return;
   const fileKeys=[...new Set(t2ExpRows.map(r=>r.fileKey).filter(Boolean))];
   if(!fileKeys.length){el.innerHTML='';return;}
-  el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px">업로드된 파일</div>`+
-    fileKeys.map(fk=>{const cnt=t2ExpRows.filter(r=>r.fileKey===fk).length;
-      return`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;margin-bottom:4px">
-        <span style="font-size:11px;color:var(--text1)">📄 ${fk} <span style="color:var(--text3)">(${cnt}건)</span></span>
-        <button onclick="deleteFile('${fk.replace(/'/g,"\\'")}' )" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:11px;font-weight:700;padding:2px 6px">✕ 삭제</button>
-      </div>`;}).join('');
+  el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px">📂 업로드된 파일</div>`+
+    fileKeys.map(fk=>{
+      const cnt=t2ExpRows.filter(r=>r.fileKey===fk).length;
+      return`<div style="display:flex;align-items:center;justify-content:space-between;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:5px 10px;margin-bottom:4px">
+        <span style="font-size:11px;color:#1D4ED8;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="${fk}">📄 ${fk}</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span style="font-size:10px;color:#60A5FA">${cnt}건</span>
+          <button onclick="deleteFile('${fk.replace(/'/g,"\\'")}' )" style="background:none;border:none;cursor:pointer;color:#94A3B8;font-size:13px;font-weight:700;padding:0 2px;line-height:1" onmouseover="this.style.color='#EF4444'" onmouseout="this.style.color='#94A3B8'">✕</button>
+        </div>
+      </div>`;
+    }).join('');
 }
 
 function deleteFile(fileKey){
